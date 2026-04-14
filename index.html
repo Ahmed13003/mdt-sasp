@@ -1,0 +1,64 @@
+<div class="mdt-container">
+    <aside class="sidebar">
+        <div class="brand">SASP</div>
+        <nav>
+            <div class="nav-item active"><i class="fas fa-home"></i> Dashboard</div>
+            <div class="nav-item"><i class="fas fa-users"></i> Citoyens</div>
+            <div class="nav-item"><i class="fas fa-car"></i> Véhicules</div>
+            <div class="nav-item"><i class="fas fa-file-alt"></i> Rapports</div>
+            <div class="nav-item"><i class="fas fa-gavel"></i> Mandats</div>
+            <div class="nav-item"><i class="fas fa-map-marked-alt"></i> Dispatch</div>
+        </nav>
+        <div class="user-profile">
+            <img src="avatar.jpg" class="avatar">
+            <div class="details">
+                <span class="name">John Doe</span>
+                <span class="rank">Sergent I</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <input type="text" placeholder="Recherche rapide (Nom, Plaque, ID)..." class="global-search">
+            <div class="system-time">15:30 - 15/04/2024</div>
+        </header>
+
+        <section class="dashboard-grid">
+            <div class="card bolo-section">
+                <h3><i class="fas fa-exclamation-triangle"></i> Avis de Recherche (BOLO)</h3>
+                <div class="bolo-list">
+                    <div class="bolo-card">
+                        <img src="suspect.jpg">
+                        <div class="info">
+                            <span class="name">Michael De Santa</span>
+                            <span class="reason">Braquage de banque</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card dispatch-calls">
+                <h3><i class="fas fa-headset"></i> Appels en cours</h3>
+                <div class="call-item priority-high">
+                    <span class="code">10-31</span>
+                    <span class="location">Mission Row</span>
+                    <span class="time">il y a 2 min</span>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<ul>
+    <li>Tableau de bord</li>
+    <li>Recherche Citoyen</li>
+    <li id="nav-admin">Gestion des Agents (ADMIN ONLY)</li> </ul>
+
+<div class="report-actions">
+    <button class="btn-edit">Modifier</button>
+    <button class="btn-delete" style="background-color: red;">Supprimer le rapport</button> </div>
+
+</body> 
+<script src="script.js"></script>
+</body>
+</html>
