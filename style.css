@@ -173,10 +173,12 @@ button:hover {
 
 
 /* Couleurs des Grades */
-.rank-directeur { color: #ff0000; font-weight: bold; text-shadow: 0 0 5px rgba(255,0,0,0.5); }
-.rank-etat-major { color: #c5a059; font-weight: bold; }
-.rank-officier { color: #3498db; }
-.rank-cadet { color: #95a5a6; font-style: italic; }
+.rank-commander, .rank-capitaine { color: #ff0000; font-weight: bold; } /* Rouge */
+.rank-lieutenant { color: #e67e22; font-weight: bold; } /* Orange */
+.rank-sergent-chef, .rank-sergent-ii, .rank-sergent-i { color: #f1c40f; } /* Jaune */
+.rank-slo { color: #9b59b6; } /* Violet */
+.rank-officier { color: #3498db; } /* Bleu */
+.rank-cadet { color: #95a5a6; } /* Gris */
 
 /* Badge de grade dans la sidebar */
 #display-rank {
