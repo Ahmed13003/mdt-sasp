@@ -1,7 +1,7 @@
 :root {
     --accent: #00d2ff;
     --bg: #010a14;
-    --card: rgba(2, 15, 28, 0.9);
+    --card: rgba(2, 15, 28, 0.92);
     --border: rgba(0, 210, 255, 0.2);
 }
 
@@ -16,28 +16,10 @@ body {
     overflow: hidden; 
 }
 
-/* AUTH */
-#login-overlay { 
-    position: fixed; 
-    inset: 0; 
-    background: radial-gradient(circle at center, #001a33, #000); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    z-index: 1000; 
-}
-.auth-box { 
-    background: var(--card); 
-    border: 1px solid var(--accent); 
-    padding: 40px; 
-    width: 350px; 
-    border-radius: 5px; 
-}
-
 /* SIDEBAR */
 .sidebar { 
     width: 280px; 
-    background: rgba(0,0,0,0.8); 
+    background: rgba(0,0,0,0.85); 
     backdrop-filter: blur(15px);
     border-right: 1px solid var(--border); 
     display: flex; 
@@ -59,15 +41,31 @@ body {
     flex: 1; 
     padding: 40px; 
     overflow-y: auto; 
-    position: relative;
-    background-color: var(--bg);
-    /* IMAGE DE LOS SANTOS NUIT - HAUTE QUALITÉ */
-    background-image: linear-gradient(rgba(1, 10, 20, 0.85), rgba(1, 10, 20, 0.85)), 
-                      url('https://wallpaperaccess.com/full/223128.jpg');
+    /* IMAGE DE LOS SANTOS NUIT - LIEN FIABLE IMGUR */
+    background: linear-gradient(rgba(1, 10, 20, 0.8), rgba(1, 10, 20, 0.8)), 
+                url('https://i.imgur.com/vHqR98S.jpg');
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
     background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* AUTH ÉCRAN */
+#login-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: radial-gradient(circle at center, #001a33, #000); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1000; 
+}
+.auth-box { 
+    background: var(--card); 
+    border: 1px solid var(--accent); 
+    padding: 40px; 
+    width: 350px; 
+    border-radius: 5px; 
 }
 
 /* NAVIGATION */
@@ -96,8 +94,6 @@ body {
     padding: 20px; 
     border-radius: 2px; 
     margin-bottom: 20px; 
-    position: relative;
-    z-index: 2;
 }
 
 .service-status { 
