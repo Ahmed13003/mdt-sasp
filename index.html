@@ -75,3 +75,26 @@
 
 <head>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <div id="register-box" style="display:none;" class="login-box">
+    <img src="https://i.imgur.com/8K9pX6F.png" alt="SASP Logo">
+    <h2>Demande d'Accès</h2>
+    <input type="text" id="reg-nom" placeholder="Nom">
+    <input type="text" id="reg-prenom" placeholder="Prénom">
+    <input type="text" id="reg-matricule" placeholder="Matricule">
+    <input type="text" id="reg-tel" placeholder="Numéro de téléphone">
+    <input type="password" id="reg-password" placeholder="Mot de passe souhaité">
+    <button onclick="sendRequest()">Envoyer la demande</button>
+    <button onclick="toggleRegister()" style="background:none; color:#c5a059; margin-top:10px;">Retour au login</button>
+    <p id="reg-success" style="color: #27ae60; display:none; margin-top:10px;">Demande envoyée ! En attente de validation.</p>
+</div>
+
+    <section id="page-admin" class="mdt-page" style="display:none;">
+    <header><h1>Gestion des Accès (État-Major)</h1></header>
+    <div class="card">
+        <h3>Demandes en attente</h3>
+        <div id="pending-requests-list">
+            <p>Aucune demande pour le moment.</p>
+        </div>
+    </div>
+</section>
