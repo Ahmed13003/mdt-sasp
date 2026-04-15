@@ -1,31 +1,182 @@
-:root { --accent: #00d2ff; --bg: #010a14; --card: rgba(2, 15, 28, 0.8); --border: rgba(0, 210, 255, 0.2); }
+:root {
+    --accent: #00d2ff;
+    --bg: #010a14;
+    --card: rgba(2, 15, 28, 0.85);
+    --border: rgba(0, 210, 255, 0.2);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; height: 100vh; overflow: hidden; }
+
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: var(--bg); 
+    color: white; 
+    display: flex; 
+    height: 100vh; 
+    overflow: hidden; 
+}
 
 /* AUTH */
-#login-overlay { position: fixed; inset: 0; background: radial-gradient(circle at center, #001a33, #000); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.auth-box { background: var(--card); border: 1px solid var(--accent); padding: 40px; width: 350px; text-align: center; border-radius: 5px; }
+#login-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: radial-gradient(circle at center, #001a33, #000); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1000; 
+}
+.auth-box { 
+    background: var(--card); 
+    border: 1px solid var(--accent); 
+    padding: 40px; 
+    width: 350px; 
+    text-align: center; 
+    border-radius: 5px; 
+}
 
 /* LAYOUT */
-.sidebar { width: 280px; background: rgba(0,0,0,0.5); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-.brand { padding: 30px; color: var(--accent); text-align: center; font-weight: bold; letter-spacing: 2px; }
-.content { flex: 1; padding: 40px; overflow-y: auto; background: url('https://i.imgur.com/8K9pX6F.png') no-repeat center / 30% fixed; background-color: var(--bg); }
+.sidebar { 
+    width: 280px; 
+    background: rgba(0,0,0,0.6); 
+    backdrop-filter: blur(10px);
+    border-right: 1px solid var(--border); 
+    display: flex; 
+    flex-direction: column; 
+}
 
-/* NAV */
-.nav-item { padding: 15px 25px; cursor: pointer; color: #666; display: flex; align-items: center; gap: 15px; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem; }
-.nav-item:hover, .nav-item.active { color: var(--accent); background: rgba(0,210,255,0.05); }
-.nav-item.active { border-left: 3px solid var(--accent); }
+.brand { 
+    padding: 30px; 
+    color: var(--accent); 
+    text-align: center; 
+    font-weight: bold; 
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
 
-/* ELEMENTS */
-.card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 3px; margin-bottom: 20px; }
-.service-status { margin: 15px; padding: 10px; border: 1px solid #ff4d4d; color: #ff4d4d; text-align: center; cursor: pointer; font-weight: bold; transition: 0.3s; }
-.service-status.active { border-color: #00ff00; color: #00ff00; background: rgba(0,255,0,0.1); }
+/* --- ZONE DE CONTENU AVEC EFFET FANTOMATIQUE --- */
+.content { 
+    flex: 1; 
+    padding: 40px; 
+    overflow-y: auto; 
+    background-color: var(--bg);
+    /* L'image est assombrie par un dégradé noir pour l'effet fantôme */
+    background: linear-gradient(rgba(1, 10, 20, 0.85), rgba(1, 10, 20, 0.85)), 
+                url('https://i.imgur.com/qCW1kiah.jpg') no-repeat center / cover fixed;
+}
 
-input, textarea { background: rgba(0,0,0,0.4); border: 1px solid #333; color: white; padding: 10px; width: 100%; margin-bottom: 10px; font-family: inherit; }
-button { background: var(--accent); color: black; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; width: 100%; }
-button:hover { background: white; }
+/* NAVIGATION */
+.nav-item { 
+    padding: 15px 25px; 
+    cursor: pointer; 
+    color: #666; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    transition: 0.3s; 
+    text-transform: uppercase; 
+    font-size: 0.8rem; 
+}
+.nav-item:hover, .nav-item.active { 
+    color: var(--accent); 
+    background: rgba(0,210,255,0.05); 
+}
+.nav-item.active { 
+    border-left: 3px solid var(--accent); 
+}
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-.identity-card { background: var(--card); border: 1px solid var(--border); padding: 15px; text-align: center; }
-.identity-card img { width: 100px; height: 100px; object-fit: cover; border: 1px solid var(--accent); margin-bottom: 10px; }
-.rank { font-size: 0.8rem; color: var(--accent); font-weight: bold; }
+/* CARTES ET ELEMENTS */
+.card { 
+    background: var(--card); 
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--border); 
+    padding: 20px; 
+    border-radius: 3px; 
+    margin-bottom: 20px; 
+}
+
+.service-status { 
+    margin: 15px; 
+    padding: 12px; 
+    border: 1px solid #ff4d4d; 
+    color: #ff4d4d; 
+    text-align: center; 
+    cursor: pointer; 
+    font-weight: bold; 
+    text-transform: uppercase;
+    transition: 0.3s; 
+}
+.service-status.active { 
+    border-color: #00ff00; 
+    color: #00ff00; 
+    background: rgba(0,255,0,0.1); 
+    box-shadow: 0 0 10px rgba(0,255,0,0.2);
+}
+
+input, textarea { 
+    background: rgba(0,0,0,0.6); 
+    border: 1px solid #333; 
+    color: white; 
+    padding: 12px; 
+    width: 100%; 
+    margin-bottom: 10px; 
+    font-family: inherit; 
+}
+input:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+button { 
+    background: var(--accent); 
+    color: black; 
+    border: none; 
+    padding: 12px 20px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    width: 100%; 
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+button:hover { 
+    background: white; 
+    box-shadow: 0 0 15px var(--accent);
+}
+
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 20px; 
+}
+
+.identity-card { 
+    background: var(--card); 
+    border: 1px solid var(--border); 
+    padding: 15px; 
+    text-align: center; 
+    transition: 0.3s;
+}
+.identity-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-5px);
+}
+
+.identity-card img { 
+    width: 100px; 
+    height: 100px; 
+    object-fit: cover; 
+    border: 1px solid var(--accent); 
+    margin-bottom: 10px; 
+}
+
+.rank { 
+    font-size: 0.8rem; 
+    color: var(--accent); 
+    font-weight: bold; 
+}
+
+.officer-card {
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+    border-top: 1px solid var(--border);
+}
