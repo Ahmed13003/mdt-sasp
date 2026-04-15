@@ -1,7 +1,7 @@
 :root {
     --accent: #00d2ff;
     --bg: #010a14;
-    --card: rgba(2, 15, 28, 0.88);
+    --card: rgba(2, 15, 28, 0.9);
     --border: rgba(0, 210, 255, 0.2);
 }
 
@@ -31,11 +31,10 @@ body {
     border: 1px solid var(--accent); 
     padding: 40px; 
     width: 350px; 
-    text-align: center; 
     border-radius: 5px; 
 }
 
-/* LAYOUT */
+/* SIDEBAR */
 .sidebar { 
     width: 280px; 
     background: rgba(0,0,0,0.7); 
@@ -52,18 +51,17 @@ body {
     font-weight: bold; 
     letter-spacing: 3px;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
 }
 
-/* --- ZONE DE CONTENU AVEC IMAGE CONSEILLÉE (LOS SANTOS NIGHT) --- */
+/* --- ZONE DE CONTENU (L'IMAGE EST ICI) --- */
 .content { 
     flex: 1; 
     padding: 40px; 
     overflow-y: auto; 
     background-color: var(--bg);
-    /* Image de Los Santos floue avec overlay sombre bleu nuit */
-    background: linear-gradient(rgba(1, 10, 20, 0.8), rgba(1, 10, 20, 0.9)), 
-                url('https://i.imgur.com/8K9pX6F.png') no-repeat center / cover fixed;
+    /* Voici l'image de Los Santos avec un filtre sombre */
+    background: linear-gradient(rgba(1, 10, 20, 0.8), rgba(1, 10, 20, 0.8)), 
+                url('https://i.imgur.com/8BvG4pM.jpeg') no-repeat center / cover fixed;
 }
 
 /* NAVIGATION */
@@ -77,15 +75,12 @@ body {
     transition: 0.3s; 
     text-transform: uppercase; 
     font-size: 0.8rem; 
-    font-weight: 600;
 }
 .nav-item:hover, .nav-item.active { 
     color: var(--accent); 
     background: rgba(0,210,255,0.08); 
 }
-.nav-item.active { 
-    border-left: 3px solid var(--accent); 
-}
+.nav-item.active { border-left: 3px solid var(--accent); }
 
 /* CARTES */
 .card { 
@@ -95,7 +90,6 @@ body {
     padding: 20px; 
     border-radius: 2px; 
     margin-bottom: 20px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
 .service-status { 
@@ -107,13 +101,8 @@ body {
     cursor: pointer; 
     font-weight: bold; 
     text-transform: uppercase;
-    transition: 0.3s; 
 }
-.service-status.active { 
-    border-color: #00ff00; 
-    color: #00ff00; 
-    background: rgba(0,255,0,0.1); 
-}
+.service-status.active { border-color: #00ff00; color: #00ff00; background: rgba(0,255,0,0.1); }
 
 /* FORMULAIRES */
 input, textarea { 
@@ -123,12 +112,6 @@ input, textarea {
     padding: 12px; 
     width: 100%; 
     margin-bottom: 10px; 
-    font-family: inherit; 
-}
-input:focus {
-    border-color: var(--accent);
-    outline: none;
-    background: rgba(0,0,0,0.7);
 }
 
 button { 
@@ -140,51 +123,5 @@ button {
     cursor: pointer; 
     width: 100%; 
     text-transform: uppercase;
-    transition: 0.2s;
 }
-button:hover { 
-    background: white; 
-    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
-}
-
-/* GRILLES */
-.grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-    gap: 20px; 
-}
-
-.identity-card { 
-    background: var(--card); 
-    border: 1px solid var(--border); 
-    padding: 15px; 
-    text-align: center; 
-    transition: 0.3s;
-}
-.identity-card:hover {
-    border-color: var(--accent);
-    background: rgba(0, 210, 255, 0.05);
-}
-
-.identity-card img { 
-    width: 100px; 
-    height: 100px; 
-    object-fit: cover; 
-    border: 1px solid var(--accent); 
-    margin-bottom: 10px; 
-}
-
-.rank { 
-    font-size: 0.75rem; 
-    color: var(--accent); 
-    font-weight: bold; 
-    background: rgba(0, 210, 255, 0.1);
-    padding: 2px 8px;
-    border-radius: 4px;
-}
-
-.officer-card {
-    padding: 20px;
-    background: rgba(0,0,0,0.4);
-    border-top: 1px solid var(--border);
-}
+button:
