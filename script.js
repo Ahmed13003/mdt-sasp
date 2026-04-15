@@ -14,7 +14,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
-// --- NAVIGATION ---
+// NAVIGATION
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -24,7 +24,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     });
 });
 
-// --- CONNEXION ---
+// CONNEXION
 window.checkLogin = async () => {
     const id = document.getElementById('officer-id').value;
     const pass = document.getElementById('access-code').value;
@@ -34,140 +34,65 @@ window.checkLogin = async () => {
     if (!snap.empty) {
         currentUser = snap.docs[0].data();
         currentUser.id = snap.docs[0].id;
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('mdt-app').style.display = 'flex';
-        document.getElementById('display-name').innerText = `${currentUser.prenom} ${currentUser.nom}`;
-        document.getElementById('display-rank').innerText = currentUser.grade;
-        loadAll();
-    } else { alert("Identifiants incorrects"); }
+        if (currentUser.statut === "valide") {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('mdt-app').style.display = 'flex';
+            document.getElementById('display-name').innerText = `${currentUser.prenom} ${currentUser.nom}`;
+            document.getElementById('display-rank').innerText = currentUser.grade;
+            setupPermissions();
+            loadAll();
+        } else { alert("Compte non validé"); }
+    } else { alert("Erreur d'identifiants"); }
 };
 
-// --- RAPPORTS ET SAISIES ---
-window.addRapport = async () => {
-    const rapport = {
-        date: document.getElementById('ra-date').value,
-        agents: document.getElementById('ra-agents').value,
-        incident: document.getElementById('ra-incident').value,
-        procedure: document.getElementById('ra-procedure').value,
-        saisie: document.getElementById('ra-saisie').value,
-        timestamp: new Date()
-    };
-    await addDoc(collection(db, "rapports"), rapport);
-    alert("Rapport archivé !");
-    loadRapports();
+// SERVICE
+window.toggleService = async () => {
+    const btn = document.getElementById('service-btn');
+    const isOff = btn.innerText === "HORS SERVICE";
+    btn.innerText = isOff ? "EN SERVICE" : "HORS SERVICE";
+    btn.className = isOff ? "service-status active" : "service-status";
+    await updateDoc(doc(db, "users", currentUser.id), { en_service: isOff });
 };
 
-// --- CHARGEMENT DYNAMIQUE ---
-async function loadRapports() {
-    const snap = await getDocs(query(collection(db, "rapports"), orderBy("timestamp", "desc")));
-    const container = document.getElementById('list-rapports');
-    container.innerHTML = "";
-    snap.forEach(d => {
-        const r = d.data();
-        container.innerHTML += `
-            <div class="card">
-                <p><b>DATE :</b> ${r.date}</p>
-                <p><b>AGENTS :</b> ${r.agents}</p>
-                <p><b>INCIDENT :</b> ${r.incident}</p>
-                <hr style="margin:10px 0; border:0.5px solid rgba(255,255,255,0.1)">
-                <p style="color:#00d2ff"><b>OBJETS SAISIS :</b> ${r.saisie || 'Aucune saisie'}</p>
-            </div>`;
-    });
-}
-
-// Lancer le chargement
-function loadAll() {
-    loadRapports();
-    // Ajoute ici tes autres fonctions (loadCitoyens, etc.)
-}
-// --- GESTION DES ANNONCES ---
+// ANNONCES (Sergent+)
 window.addAnnonce = async () => {
     const data = {
         titre: document.getElementById('ann-titre').value,
         message: document.getElementById('ann-texte').value,
         auteur: currentUser.prenom + " " + currentUser.nom,
-        date: new Date().toLocaleDateString('fr-FR')
+        timestamp: new Date()
     };
     await addDoc(collection(db, "annonces"), data);
+    alert("Annonce publiée !");
     loadAnnonces();
 };
 
 async function loadAnnonces() {
-    const snap = await getDocs(collection(db, "annonces"));
+    const q = query(collection(db, "annonces"), orderBy("timestamp", "desc"));
+    const snap = await getDocs(q);
     const container = document.getElementById('list-annonces');
     container.innerHTML = "";
     snap.forEach(d => {
         const a = d.data();
-        container.innerHTML += `
-            <div class="card" style="border-left: 4px solid var(--accent);">
-                <h2 style="color:var(--accent)">${a.titre}</h2>
-                <p style="margin: 10px 0;">${a.message}</p>
-                <small>Par ${a.auteur} le ${a.date}</small>
-            </div>`;
+        container.innerHTML += `<div class="card" style="border-left:4px solid var(--accent)">
+            <h3 style="color:var(--accent)">${a.titre}</h3>
+            <p>${a.message}</p>
+            <small>Par ${a.auteur}</small>
+        </div>`;
     });
 }
 
-// --- GESTION GALERIE ---
-window.addPhoto = async () => {
-    await addDoc(collection(db, "galerie"), {
-        url: document.getElementById('gal-url').value,
-        desc: document.getElementById('gal-desc').value
-    });
-    loadPhotos();
-};
-
-async function loadPhotos() {
-    const snap = await getDocs(collection(db, "galerie"));
-    const container = document.getElementById('list-photos');
-    container.innerHTML = "";
-    snap.forEach(d => {
-        const p = d.data();
-        container.innerHTML += `
-            <div class="identity-card">
-                <img src="${p.url}" style="width:100%; height:150px;">
-                <p style="font-size:0.8rem; margin-top:5px;">${p.desc}</p>
-            </div>`;
-    });
-}
-
-// --- AJOUTER UN AGENT MANUELLEMENT ---
-window.addNewAgent = async () => {
-    await addDoc(collection(db, "users"), {
-        prenom: document.getElementById('new-prenom').value,
-        nom: document.getElementById('new-nom').value,
-        matricule: document.getElementById('new-mat').value,
-        grade: document.getElementById('new-grade').value,
-        photo: document.getElementById('new-photo').value,
-        statut: "valide", // Valide d'office
-        mdp: "1234" // Mot de passe par défaut
-    });
-    alert("Agent ajouté !");
-    loadSASP();
-};
-
-// Modifie ta fonction setupPermissions pour afficher les formulaires
-const g = currentUser.grade.toLowerCase();
-if(g.includes("commander") || g.includes("capitaine")) {
-    document.getElementById('form-sasp').style.display = 'block';
-    document.getElementById('form-annonce').style.display = 'block';
-}
-
-window.setupPermissions = (user) => {
-    const g = user.grade.toLowerCase();
-
-    // --- PERMISSIONS ANNONCES ---
-    // Si l'agent est au moins Sergent, on montre le formulaire pour poster
+// PERMISSIONS
+function setupPermissions() {
+    const g = currentUser.grade.toLowerCase();
     if (g.includes("sergent") || g.includes("lieutenant") || g.includes("capitaine") || g.includes("commander")) {
-        const formAnnonce = document.getElementById('form-annonce');
-        if (formAnnonce) formAnnonce.style.display = 'block';
+        document.getElementById('form-annonce').style.display = 'block';
+        document.getElementById('form-wanted').style.display = 'block';
     }
+}
 
-    // --- AUTRES PERMISSIONS (Rappel) ---
-    if (g.includes("sergent") || g.includes("lieutenant") || g.includes("capitaine") || g.includes("commander")) {
-        if (document.getElementById('nav-wanted')) document.getElementById('nav-wanted').style.display = 'flex';
-    }
-    
-    if (g.includes("commander") || g.includes("capitaine")) {
-        if (document.getElementById('form-sasp')) document.getElementById('form-sasp').style.display = 'block';
-    }
-};
+// Chargement initial
+function loadAll() {
+    loadAnnonces();
+    // Tu peux ajouter loadSASP, loadCitoyens, etc. ici
+}
