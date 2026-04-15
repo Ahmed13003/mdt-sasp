@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <div style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1, 10, 20, 0.8), rgba(1, 10, 20, 0.9)), url('https://i.imgur.com/vHqR98S.jpg') no-repeat center / cover; pointer-events: none;"></div>
 
     <div id="login-overlay">
         <div id="login-box" class="auth-box">
@@ -14,7 +15,6 @@
             <input type="text" id="officer-id" placeholder="MATRICULE">
             <input type="password" id="access-code" placeholder="MOT DE PASSE">
             <button onclick="checkLogin()">CONNEXION</button>
-            <p onclick="toggleAuth()" class="toggle-link">DEMANDER UN ACCÈS</p>
         </div>
     </div>
 
@@ -27,7 +27,6 @@
                 <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-house"></i> Dashboard</div>
                 <div class="nav-item" data-page="page-annonces"><i class="fas fa-bullhorn"></i> Annonces</div>
                 <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
-                <div class="nav-item" data-page="page-vehicules"><i class="fas fa-car-side"></i> Véhicules</div>
                 <div class="nav-item" data-page="page-rapports"><i class="fas fa-file-invoice"></i> Rapports</div>
                 <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif</div>
                 <div class="nav-item" data-page="page-galerie"><i class="fas fa-images"></i> Galerie</div>
@@ -42,12 +41,6 @@
         <main class="content">
             <section id="page-dashboard" class="mdt-page">
                 <h1>Tableau de Bord</h1>
-                <div class="card" id="form-wanted" style="display:none;">
-                    <h3>Lancer un avis de recherche (Sergent+)</h3>
-                    <input type="text" id="want-nom" placeholder="Nom du suspect">
-                    <textarea id="want-raison" placeholder="Raison de la recherche"></textarea>
-                    <button onclick="addWanted()">DIFFUSER BOLO</button>
-                </div>
                 <div id="list-wanted" class="grid"></div>
             </section>
 
@@ -64,27 +57,16 @@
 
             <section id="page-citoyens" class="mdt-page" style="display:none;">
                 <h1>Fichier Civil</h1>
-                <div class="card">
-                    <h3>Ajouter un Citoyen</h3>
-                    <div class="form-grid">
-                        <input type="text" id="cit-nom" placeholder="Prénom Nom">
-                        <input type="text" id="cit-photo" placeholder="Lien Photo">
-                        <input type="text" id="cit-adresse" placeholder="Adresse">
-                        <input type="text" id="cit-job" placeholder="Emploi">
-                        <input type="text" id="cit-groupe" placeholder="Groupuscule">
-                    </div>
-                    <button onclick="addCitoyen()">CRÉER FICHE</button>
-                </div>
                 <div id="list-citoyens" class="grid"></div>
             </section>
 
             <section id="page-rapports" class="mdt-page" style="display:none;">
                 <h1>Rapports d'Arrestation</h1>
                 <div class="card">
-                    <input type="text" id="ra-date" placeholder="Date - Heure">
-                    <input type="text" id="ra-agents" placeholder="Agents sur place">
-                    <textarea id="ra-incident" placeholder="Descriptif incident"></textarea>
-                    <textarea id="ra-saisie" placeholder="Saisies effectuées"></textarea>
+                    <input type="text" id="ra-date" placeholder="Date">
+                    <input type="text" id="ra-agents" placeholder="Agents">
+                    <textarea id="ra-incident" placeholder="Incident"></textarea>
+                    <textarea id="ra-saisie" placeholder="Saisies"></textarea>
                     <button onclick="addRapport()">ARCHIVER</button>
                 </div>
                 <div id="list-rapports"></div>
