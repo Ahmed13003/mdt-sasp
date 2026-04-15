@@ -1,30 +1,29 @@
-// Ton système de permissions
-const PERMISSIONS = {
-    'Cadet': { canDelete: false, canManageUsers: false },
-    'Officier': { canDelete: false, canManageUsers: false },
-    'Sergent': { canDelete: true, canManageUsers: false },
-    'Commandant': { canDelete: true, canManageUsers: true }
-};
+document.addEventListener('DOMContentLoaded', () => {
+    // On récupère tous les boutons de la barre latérale
+    const navItems = document.querySelectorAll('.nav-item');
+    // On récupère toutes les pages
+    const pages = document.querySelectorAll('.mdt-page');
 
-// Simulation de l'utilisateur connecté (A changer plus tard avec une DB)
-const currentUser = {
-    name: "Jean Patin",
-    rank: "Cadet" 
-};
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // 1. Enlever la classe 'active' de tous les boutons
+            navItems.forEach(nav => nav.classList.remove('active'));
+            // 2. Ajouter 'active' au bouton cliqué
+            item.classList.add('active');
 
-function applyPermissions() {
-    const userPerms = PERMISSIONS[currentUser.rank];
+            // 3. Cacher toutes les pages
+            pages.forEach(page => page.style.display = 'none');
 
-    if (!userPerms.canDelete) {
-        document.querySelectorAll('.btn-delete').forEach(el => el.style.removeProperty('display')); // Au cas où
-        document.querySelectorAll('.btn-delete').forEach(el => el.style.display = 'none');
-    }
-
-    if (!userPerms.canManageUsers) {
-        const adminNav = document.getElementById('nav-admin');
-        if(adminNav) adminNav.style.display = 'none';
-    }
-}
-
-// S'assure que le code se lance une fois la page chargée
-document.addEventListener('DOMContentLoaded', applyPermissions);
+            // 4. Afficher la bonne page selon le texte du bouton
+            const target = item.innerText.trim().toLowerCase();
+            
+            if (target.includes("dashboard")) {
+                document.getElementById('page-dashboard').style.display = 'block';
+            } else if (target.includes("citoyens")) {
+                document.getElementById('page-citoyens').style.display = 'block';
+            } else if (target.includes("véhicules")) {
+                document.getElementById('page-vehicules').style.display = 'block';
+            }
+        });
+    });
+});
