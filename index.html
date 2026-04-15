@@ -161,3 +161,83 @@
         </div>
     </div>
 </section>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>MDT SASP - Online RP</title>
+    <link rel="stylesheet" href="style.css">
+    </head>
+<body>
+
+    <div id="login-overlay"> ... </div>
+    <div id="mdt-app"> ... </div>
+
+    <script type="module">
+      // Importations Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getFirestore, collection, addDoc, getDocs, query, where } 
+        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      // Tes infos de ta capture d'écran
+      const firebaseConfig = {
+        apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
+        authDomain: "mdt-onlinerp.firebaseapp.com",
+        projectId: "mdt-onlinerp",
+        storageBucket: "mdt-onlinerp.firebasestorage.app",
+        messagingSenderId: "102349354657",
+        appId: "1:102349354657:web:7085e7db36adec678d22e0",
+        measurementId: "G-1414SZ496Y"
+      };
+
+      // Initialisation
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // --- TES FONCTIONS DE CONNEXION ET D'INSCRIPTION ---
+      
+      // Fonction pour envoyer la demande d'inscription
+      window.sendRequest = async function() {
+          const data = {
+              nom: document.getElementById('reg-nom').value,
+              prenom: document.getElementById('reg-prenom').value,
+              matricule: document.getElementById('reg-matricule').value,
+              tel: document.getElementById('reg-tel').value,
+              mdp: document.getElementById('reg-password').value,
+              statut: "en_attente",
+              grade: "Cadet"
+          };
+
+          try {
+              await addDoc(collection(db, "users"), data);
+              alert("Demande envoyée !");
+          } catch (e) {
+              alert("Erreur : " + e);
+          }
+      }
+
+      // Fonction pour se connecter
+      window.checkLogin = async function() {
+          const matricule = document.getElementById('officer-id').value;
+          const code = document.getElementById('access-code').value;
+          
+          const q = query(collection(db, "users"), where("matricule", "==", matricule), where("mdp", "==", code));
+          const querySnapshot = await getDocs(q);
+          
+          if (!querySnapshot.empty) {
+              const user = querySnapshot.docs[0].data();
+              if (user.statut === "valide") {
+                  document.getElementById('login-overlay').style.display = 'none';
+                  document.getElementById('mdt-app').style.display = 'flex';
+              } else {
+                  alert("Compte en attente de validation par l'État-Major.");
+              }
+          } else {
+              alert("Identifiants incorrects.");
+          }
+      }
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
