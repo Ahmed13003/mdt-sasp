@@ -1,243 +1,133 @@
-<div class="mdt-container">
-    <aside class="sidebar">
-        <div class="brand">SASP</div>
-        <nav>
-            <div class="nav-item active"><i class="fas fa-home"></i> Dashboard</div>
-            <div class="nav-item"><i class="fas fa-users"></i> Citoyens</div>
-            <div class="nav-item"><i class="fas fa-car"></i> Véhicules</div>
-            <div class="nav-item"><i class="fas fa-file-alt"></i> Rapports</div>
-            <div class="nav-item"><i class="fas fa-gavel"></i> Mandats</div>
-            <div class="nav-item"><i class="fas fa-map-marked-alt"></i> Dispatch</div>
-        </nav>
-        <div class="user-profile">
-            <img src="avatar.jpg" class="avatar">
-            <div class="details">
-                <span class="name">John Doe</span>
-                <span class="rank">Sergent I</span>
-            </div>
-        </div>
-    </aside>
-
-    <main class="content">
-    <section id="page-dashboard" class="mdt-page">
-        <header><h1>Tableau de Bord</h1></header>
-        <div class="dashboard-grid">
-            <div class="card"><h3>BOLOs</h3><p>Aucun suspect.</p></div>
-        </div>
-    </section>
-
-    <section id="page-citoyens" class="mdt-page" style="display:none;">
-        <header><h1>Base de Données Citoyens</h1></header>
-        <div class="card">
-            <input type="text" placeholder="Nom du citoyen...">
-            <button>Rechercher</button>
-        </div>
-    </section>
-
-    <section id="page-vehicules" class="mdt-page" style="display:none;">
-        <header><h1>Fichier des Véhicules</h1></header>
-        <div class="card">
-            <input type="text" placeholder="Plaque d'immatriculation...">
-            <button>Rechercher</button>
-        </div>
-    </section>
-</main>
-
-            <div class="card dispatch-calls">
-                <h3><i class="fas fa-headset"></i> Appels en cours</h3>
-                <div class="call-item priority-high">
-                    <span class="code">10-31</span>
-                    <span class="location">Mission Row</span>
-                    <span class="time">il y a 2 min</span>
-                </div>
-            </div>
-        </section>
-    </main>
-</div>
-<ul>
-    <li>Tableau de bord</li>
-    <li>Recherche Citoyen</li>
-    <li id="nav-admin">Gestion des Agents (ADMIN ONLY)</li> </ul>
-
-<div class="report-actions">
-    <button class="btn-edit">Modifier</button>
-    <button class="btn-delete" style="background-color: red;">Supprimer le rapport</button> </div>
-
-</body> 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } 
-    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-  // TES INFOS QUE TU AS DANS TA CAPTURE D'ÉCRAN
-  const firebaseConfig = {
-    apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
-    authDomain: "mdt-onlinerp.firebaseapp.com",
-    projectId: "mdt-onlinerp",
-    storageBucket: "mdt-onlinerp.firebasestorage.app",
-    messagingSenderId: "102349354657",
-    appId: "1:102349354657:web:7085e7db36adec678d22e0",
-    measurementId: "G-1414SZ496Y"
-  };
-
-  // Initialisation
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // FONCTION POUR ENVOYER UNE DEMANDE D'INSCRIPTION
-  window.sendRequest = async function() {
-      const data = {
-          nom: document.getElementById('reg-nom').value,
-          prenom: document.getElementById('reg-prenom').value,
-          matricule: document.getElementById('reg-matricule').value,
-          tel: document.getElementById('reg-tel').value,
-          mdp: document.getElementById('reg-password').value,
-          statut: "en_attente",
-          grade: "Cadet"
-      };
-
-      try {
-          await addDoc(collection(db, "users"), data);
-          document.getElementById('reg-success').style.display = 'block';
-          alert("Demande envoyée à l'État-Major !");
-      } catch (e) {
-          console.error("Erreur d'envoi: ", e);
-      }
-  }
-
-  // FONCTION DE CONNEXION (Vérifie dans Firebase)
-  window.checkLogin = async function() {
-      const matricule = document.getElementById('officer-id').value;
-      const code = document.getElementById('access-code').value;
-      
-      const q = query(collection(db, "users"), 
-                where("matricule", "==", matricule), 
-                where("mdp", "==", code));
-
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-          const user = querySnapshot.docs[0].data();
-          if (user.statut === "valide") {
-              document.getElementById('login-overlay').style.display = 'none';
-              document.getElementById('mdt-app').style.display = 'flex';
-              document.querySelector('.officer-info .name').innerText = user.prenom + " " + user.nom;
-              document.querySelector('.officer-info .rank').innerText = user.grade;
-          } else {
-              alert("Votre compte n'a pas encore été validé par l'État-Major.");
-          }
-      } else {
-          alert("Identifiants incorrects.");
-      }
-  }
-</script>
-</body>
-</html>
-
-<link rel="stylesheet" href="style.css">
-
-<head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <div id="register-box" style="display:none;" class="login-box">
-    <img src="https://i.imgur.com/8K9pX6F.png" alt="SASP Logo">
-    <h2>Demande d'Accès</h2>
-    <input type="text" id="reg-nom" placeholder="Nom">
-    <input type="text" id="reg-prenom" placeholder="Prénom">
-    <input type="text" id="reg-matricule" placeholder="Matricule">
-    <input type="text" id="reg-tel" placeholder="Numéro de téléphone">
-    <input type="password" id="reg-password" placeholder="Mot de passe souhaité">
-    <button onclick="sendRequest()">Envoyer la demande</button>
-    <button onclick="toggleRegister()" style="background:none; color:#c5a059; margin-top:10px;">Retour au login</button>
-    <p id="reg-success" style="color: #27ae60; display:none; margin-top:10px;">Demande envoyée ! En attente de validation.</p>
-</div>
-
-    <section id="page-admin" class="mdt-page" style="display:none;">
-    <header><h1>Gestion des Accès (État-Major)</h1></header>
-    <div class="card">
-        <h3>Demandes en attente</h3>
-        <div id="pending-requests-list">
-            <p>Aucune demande pour le moment.</p>
-        </div>
-    </div>
-</section>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MDT SASP - Online RP</title>
     <link rel="stylesheet" href="style.css">
-    </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
 <body>
 
-    <div id="login-overlay"> ... </div>
-    <div id="mdt-app"> ... </div>
+    <div id="login-overlay">
+        <div id="login-box" class="auth-box">
+            <img src="https://i.imgur.com/8K9pX6F.png" alt="SASP Logo">
+            <h2>SASP - Connexion</h2>
+            <input type="text" id="officer-id" placeholder="Matricule">
+            <input type="password" id="access-code" placeholder="Code d'accès">
+            <button onclick="checkLogin()">Connexion</button>
+            <p onclick="toggleAuth()" class="toggle-link">Pas encore de compte ? Créer une demande</p>
+        </div>
+
+        <div id="register-box" class="auth-box" style="display:none;">
+            <img src="https://i.imgur.com/8K9pX6F.png" alt="SASP Logo">
+            <h2>Demande d'Accès</h2>
+            <input type="text" id="reg-prenom" placeholder="Prénom">
+            <input type="text" id="reg-nom" placeholder="Nom">
+            <input type="text" id="reg-matricule" placeholder="Matricule">
+            <input type="text" id="reg-tel" placeholder="Téléphone">
+            <input type="password" id="reg-password" placeholder="Mot de passe">
+            <button onclick="sendRequest()">Envoyer la demande</button>
+            <p onclick="toggleAuth()" class="toggle-link">Retour à la connexion</p>
+        </div>
+    </div>
+
+    <div id="mdt-app" style="display:none;">
+        <div class="sidebar">
+            <div class="brand">SASP MDT</div>
+            <nav>
+                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-house"></i> Dashboard</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> Citoyens</div>
+                <div class="nav-item" data-page="page-vehicules"><i class="fas fa-car"></i> Véhicules</div>
+            </nav>
+            <div class="officer-card">
+                <div class="officer-info">
+                    <p id="display-name" class="name">Officier</p>
+                    <p id="display-rank" class="rank">Grade</p>
+                </div>
+            </div>
+        </div>
+
+        <main class="content">
+            <section id="page-dashboard" class="mdt-page">
+                <h1>Tableau de Bord</h1>
+                <div class="dashboard-grid">
+                    <div class="card"><h3>BOLOs</h3><p>Aucun avis de recherche.</p></div>
+                </div>
+            </section>
+            
+            <section id="page-citoyens" class="mdt-page" style="display:none;">
+                <h1>Recherche Citoyens</h1>
+                <div class="card"><input type="text" placeholder="Rechercher un nom..."><button>Chercher</button></div>
+            </section>
+
+            <section id="page-vehicules" class="mdt-page" style="display:none;">
+                <h1>Recherche Véhicules</h1>
+                <div class="card"><input type="text" placeholder="Plaque..."><button>Chercher</button></div>
+            </section>
+        </main>
+    </div>
 
     <script type="module">
-      // Importations Firebase
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getFirestore, collection, addDoc, getDocs, query, where } 
-        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-      // Tes infos de ta capture d'écran
-      const firebaseConfig = {
-        apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
-        authDomain: "mdt-onlinerp.firebaseapp.com",
-        projectId: "mdt-onlinerp",
-        storageBucket: "mdt-onlinerp.firebasestorage.app",
-        messagingSenderId: "102349354657",
-        appId: "1:102349354657:web:7085e7db36adec678d22e0",
-        measurementId: "G-1414SZ496Y"
-      };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
+            authDomain: "mdt-onlinerp.firebaseapp.com",
+            projectId: "mdt-onlinerp",
+            storageBucket: "mdt-onlinerp.firebasestorage.app",
+            messagingSenderId: "102349354657",
+            appId: "1:102349354657:web:7085e7db36adec678d22e0"
+        };
 
-      // Initialisation
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-      // --- TES FONCTIONS DE CONNEXION ET D'INSCRIPTION ---
-      
-      // Fonction pour envoyer la demande d'inscription
-      window.sendRequest = async function() {
-          const data = {
-              nom: document.getElementById('reg-nom').value,
-              prenom: document.getElementById('reg-prenom').value,
-              matricule: document.getElementById('reg-matricule').value,
-              tel: document.getElementById('reg-tel').value,
-              mdp: document.getElementById('reg-password').value,
-              statut: "en_attente",
-              grade: "Cadet"
-          };
+        // Basculer entre Login et Inscription
+        window.toggleAuth = () => {
+            const l = document.getElementById('login-box');
+            const r = document.getElementById('register-box');
+            l.style.display = l.style.display === 'none' ? 'block' : 'none';
+            r.style.display = r.style.display === 'none' ? 'block' : 'none';
+        }
 
-          try {
-              await addDoc(collection(db, "users"), data);
-              alert("Demande envoyée !");
-          } catch (e) {
-              alert("Erreur : " + e);
-          }
-      }
+        // Envoyer demande
+        window.sendRequest = async () => {
+            const data = {
+                prenom: document.getElementById('reg-prenom').value,
+                nom: document.getElementById('reg-nom').value,
+                matricule: document.getElementById('reg-matricule').value,
+                tel: document.getElementById('reg-tel').value,
+                mdp: document.getElementById('reg-password').value,
+                statut: "en_attente",
+                grade: "Cadet"
+            };
+            try {
+                await addDoc(collection(db, "users"), data);
+                alert("Demande envoyée ! Attendez la validation de l'État-Major.");
+                toggleAuth();
+            } catch (e) { alert("Erreur: " + e); }
+        }
 
-      // Fonction pour se connecter
-      window.checkLogin = async function() {
-          const matricule = document.getElementById('officer-id').value;
-          const code = document.getElementById('access-code').value;
-          
-          const q = query(collection(db, "users"), where("matricule", "==", matricule), where("mdp", "==", code));
-          const querySnapshot = await getDocs(q);
-          
-          if (!querySnapshot.empty) {
-              const user = querySnapshot.docs[0].data();
-              if (user.statut === "valide") {
-                  document.getElementById('login-overlay').style.display = 'none';
-                  document.getElementById('mdt-app').style.display = 'flex';
-              } else {
-                  alert("Compte en attente de validation par l'État-Major.");
-              }
-          } else {
-              alert("Identifiants incorrects.");
-          }
-      }
+        // Connexion
+        window.checkLogin = async () => {
+            const id = document.getElementById('officer-id').value;
+            const pass = document.getElementById('access-code').value;
+            const q = query(collection(db, "users"), where("matricule", "==", id), where("mdp", "==", pass));
+            const snap = await getDocs(q);
+            
+            if (!snap.empty) {
+                const user = snap.docs[0].data();
+                if (user.statut === "valide") {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('mdt-app').style.display = 'flex';
+                    document.getElementById('display-name').innerText = `${user.prenom} ${user.nom}`;
+                    document.getElementById('display-rank').innerText = user.grade;
+                } else { alert("Compte non validé."); }
+            } else { alert("Identifiants incorrects."); }
+        }
     </script>
-
     <script src="script.js"></script>
 </body>
 </html>
