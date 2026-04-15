@@ -151,3 +151,23 @@ if(g.includes("commander") || g.includes("capitaine")) {
     document.getElementById('form-sasp').style.display = 'block';
     document.getElementById('form-annonce').style.display = 'block';
 }
+
+window.setupPermissions = (user) => {
+    const g = user.grade.toLowerCase();
+
+    // --- PERMISSIONS ANNONCES ---
+    // Si l'agent est au moins Sergent, on montre le formulaire pour poster
+    if (g.includes("sergent") || g.includes("lieutenant") || g.includes("capitaine") || g.includes("commander")) {
+        const formAnnonce = document.getElementById('form-annonce');
+        if (formAnnonce) formAnnonce.style.display = 'block';
+    }
+
+    // --- AUTRES PERMISSIONS (Rappel) ---
+    if (g.includes("sergent") || g.includes("lieutenant") || g.includes("capitaine") || g.includes("commander")) {
+        if (document.getElementById('nav-wanted')) document.getElementById('nav-wanted').style.display = 'flex';
+    }
+    
+    if (g.includes("commander") || g.includes("capitaine")) {
+        if (document.getElementById('form-sasp')) document.getElementById('form-sasp').style.display = 'block';
+    }
+};
