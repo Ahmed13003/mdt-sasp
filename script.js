@@ -80,3 +80,74 @@ function loadAll() {
     loadRapports();
     // Ajoute ici tes autres fonctions (loadCitoyens, etc.)
 }
+// --- GESTION DES ANNONCES ---
+window.addAnnonce = async () => {
+    const data = {
+        titre: document.getElementById('ann-titre').value,
+        message: document.getElementById('ann-texte').value,
+        auteur: currentUser.prenom + " " + currentUser.nom,
+        date: new Date().toLocaleDateString('fr-FR')
+    };
+    await addDoc(collection(db, "annonces"), data);
+    loadAnnonces();
+};
+
+async function loadAnnonces() {
+    const snap = await getDocs(collection(db, "annonces"));
+    const container = document.getElementById('list-annonces');
+    container.innerHTML = "";
+    snap.forEach(d => {
+        const a = d.data();
+        container.innerHTML += `
+            <div class="card" style="border-left: 4px solid var(--accent);">
+                <h2 style="color:var(--accent)">${a.titre}</h2>
+                <p style="margin: 10px 0;">${a.message}</p>
+                <small>Par ${a.auteur} le ${a.date}</small>
+            </div>`;
+    });
+}
+
+// --- GESTION GALERIE ---
+window.addPhoto = async () => {
+    await addDoc(collection(db, "galerie"), {
+        url: document.getElementById('gal-url').value,
+        desc: document.getElementById('gal-desc').value
+    });
+    loadPhotos();
+};
+
+async function loadPhotos() {
+    const snap = await getDocs(collection(db, "galerie"));
+    const container = document.getElementById('list-photos');
+    container.innerHTML = "";
+    snap.forEach(d => {
+        const p = d.data();
+        container.innerHTML += `
+            <div class="identity-card">
+                <img src="${p.url}" style="width:100%; height:150px;">
+                <p style="font-size:0.8rem; margin-top:5px;">${p.desc}</p>
+            </div>`;
+    });
+}
+
+// --- AJOUTER UN AGENT MANUELLEMENT ---
+window.addNewAgent = async () => {
+    await addDoc(collection(db, "users"), {
+        prenom: document.getElementById('new-prenom').value,
+        nom: document.getElementById('new-nom').value,
+        matricule: document.getElementById('new-mat').value,
+        grade: document.getElementById('new-grade').value,
+        photo: document.getElementById('new-photo').value,
+        statut: "valide", // Valide d'office
+        mdp: "1234" // Mot de passe par défaut
+    });
+    alert("Agent ajouté !");
+    loadSASP();
+};
+
+// Modifie ta fonction setupPermissions pour afficher les formulaires
+const g = currentUser.grade.toLowerCase();
+if(g.includes("commander") || g.includes("capitaine")) {
+    document.getElementById('form-sasp').style.display = 'block';
+    document.getElementById('form-annonce').style.display = 'block';
+}
