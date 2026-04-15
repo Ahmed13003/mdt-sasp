@@ -29,19 +29,19 @@
 
     <div id="mdt-app" style="display:none;">
         <div class="sidebar">
-            <div class="brand">SASP MDT</div>
-            <nav>
-                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-house"></i> Dashboard</div>
-                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> Citoyens</div>
-                <div class="nav-item" data-page="page-vehicules"><i class="fas fa-car"></i> Véhicules</div>
-                <div class="nav-item" id="nav-wanted" style="display:none;" data-page="page-wanted"><i class="fas fa-skull"></i> Most Wanted</div>
-                <div class="nav-item" id="nav-admin" style="display:none;" data-page="page-admin"><i class="fas fa-user-shield"></i> Administration</div>
-            </nav>
-            <div style="padding: 20px; border-top: 1px solid #333;">
-                <p id="display-name" style="font-weight:bold;"></p>
-                <p id="display-rank" style="font-size:0.8rem;"></p>
-            </div>
-        </div>
+    <div class="brand">SASP SERVICES</div>
+    <nav>
+        <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-th-large"></i> Dashboard</div>
+        <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
+        <div class="nav-item" data-page="page-vehicules"><i class="fas fa-car-side"></i> Immatriculations</div>
+        <div class="nav-item" id="nav-wanted" style="display:none;" data-page="page-wanted"><i class="fas fa-user-secret"></i> Recherchés</div>
+        <div class="nav-item" id="nav-admin" style="display:none;" data-page="page-admin"><i class="fas fa-cog"></i> Système</div>
+    </nav>
+    <div class="officer-card" style="padding: 20px; border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.2);">
+        <p id="display-name" style="font-size: 1rem; color: white;"></p>
+        <p id="display-rank" class="rank" style="display: inline-block; margin-top: 5px;"></p>
+    </div>
+</div>
 
         <main class="content">
             <section id="page-dashboard" class="mdt-page">
