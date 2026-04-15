@@ -1,94 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // On récupère tous les boutons de la barre latérale
-    const navItems = document.querySelectorAll('.nav-item');
-    // On récupère toutes les pages
-    const pages = document.querySelectorAll('.mdt-page');
-
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            // 1. Enlever la classe 'active' de tous les boutons
-            navItems.forEach(nav => nav.classList.remove('active'));
-            // 2. Ajouter 'active' au bouton cliqué
-            item.classList.add('active');
-
-            // 3. Cacher toutes les pages
-            pages.forEach(page => page.style.display = 'none');
-
-            // 4. Afficher la bonne page selon le texte du bouton
-            const target = item.innerText.trim().toLowerCase();
-            
-            if (target.includes("dashboard")) {
-                document.getElementById('page-dashboard').style.display = 'block';
-            } else if (target.includes("citoyens")) {
-                document.getElementById('page-citoyens').style.display = 'block';
-            } else if (target.includes("véhicules")) {
-                document.getElementById('page-vehicules').style.display = 'block';
-            }
-        });
-    });
-});
-// On simule une base de données locale pour l'exemple
-let pendingRequests = [];
-let approvedUsers = [
-    { matricule: "01", mdp: "admin", nom: "EM", grade: "Etat-Major" } // Compte de base
-];
-
-function sendRequest() {
-    const newRequest = {
-        nom: document.getElementById('reg-nom').value,
-        prenom: document.getElementById('reg-prenom').value,
-        matricule: document.getElementById('reg-matricule').value,
-        tel: document.getElementById('reg-tel').value,
-        mdp: document.getElementById('reg-password').value
-    };
-
-    pendingRequests.push(newRequest);
-    document.getElementById('reg-success').style.display = 'block';
-    updateAdminList();
-}
-
-function updateAdminList() {
-    const listDiv = document.getElementById('pending-requests-list');
-    listDiv.innerHTML = "";
-
-    pendingRequests.forEach((req, index) => {
-        listDiv.innerHTML += `
-            <div class="card" style="margin-bottom:10px; border-left: 4px solid #c5a059;">
-                <p><strong>${req.prenom} ${req.nom}</strong> (${req.matricule})</p>
-                <p>Tel: ${req.tel}</p>
-                <button onclick="approveUser(${index})">Accepter</button>
-                <button onclick="rejectUser(${index})" style="background:red;">Refuser</button>
-            </div>
-        `;
-    });
-}
-
-function approveUser(index) {
-    const user = pendingRequests[index];
-    approvedUsers.push({
-        matricule: user.matricule,
-        mdp: user.mdp,
-        nom: user.nom,
-        grade: "Officier"
-    });
-    pendingRequests.splice(index, 1);
-    updateAdminList();
-    alert("Agent validé ! Il peut maintenant se connecter.");
-}
-
-function toggleRegister() {
-    const login = document.getElementById('login-box'); // Ajoute cet ID à ta div login actuelle
-    const register = document.getElementById('register-box');
-    
-    if(register.style.display === "none") {
-        register.style.display = "block";
-        document.querySelector('.login-box:not(#register-box)').style.display = "none";
-    } else {
-        register.style.display = "none";
-        document.querySelector('.login-box:not(#register-box)').style.display = "block";
-    }
-}
-document.addEventListener('DOMContentLoaded', () => {
+    // 1. GESTION DE LA NAVIGATION (ONGLETS)
     const navItems = document.querySelectorAll('.nav-item');
     const pages = document.querySelectorAll('.mdt-page');
 
@@ -96,11 +7,61 @@ document.addEventListener('DOMContentLoaded', () => {
         item.addEventListener('click', () => {
             const target = item.getAttribute('data-page');
             
+            // On change l'item actif dans la sidebar
             navItems.forEach(nav => nav.classList.remove('active'));
             item.classList.add('active');
 
+            // On affiche la bonne page
             pages.forEach(p => p.style.display = 'none');
-            document.getElementById(target).style.display = 'block';
+            const targetPage = document.getElementById(target);
+            if (targetPage) targetPage.style.display = 'block';
         });
     });
 });
+
+/**
+ * FONCTION DE GESTION DES PERMISSIONS PAR GRADE
+ * Cette fonction est appelée dans l'index.html après une connexion réussie
+ */
+window.setupPermissions = function(user) {
+    const grade = user.grade.toLowerCase();
+    
+    // On cache tout par défaut au cas où
+    document.getElementById('nav-wanted').style.display = 'none';
+    document.getElementById('nav-slo').style.display = 'none';
+    document.getElementById('nav-admin').style.display = 'none';
+
+    // --- ACCÈS PAR NIVEAU ---
+
+    // 1. SLO et + (Gestion des Officiers)
+    if (grade.includes("slo") || grade.includes("sergent") || grade.includes("lieutenant") || grade.includes("capitaine") || grade.includes("commander")) {
+        document.getElementById('nav-slo').style.display = 'flex';
+    }
+
+    // 2. Sergents et + (Most Wanted / Effectifs)
+    if (grade.includes("sergent") || grade.includes("lieutenant") || grade.includes("capitaine") || grade.includes("commander")) {
+        document.getElementById('nav-wanted').style.display = 'flex';
+    }
+
+    // 3. Lieutenant et + (Administration / Validation des comptes)
+    if (grade.includes("lieutenant") || grade.includes("capitaine") || grade.includes("commander")) {
+        document.getElementById('nav-admin').style.display = 'flex';
+    }
+};
+
+/**
+ * SECURITÉ : Empêcher un Lieutenant de supprimer un Commander
+ * @param {string} myGrade - Grade de celui qui agit
+ * @param {string} targetGrade - Grade de celui qui subit l'action
+ */
+window.canModify = function(myGrade, targetGrade) {
+    const me = myGrade.toLowerCase();
+    const target = targetGrade.toLowerCase();
+
+    if (me.includes("lieutenant")) {
+        if (target.includes("commander") || target.includes("capitaine")) {
+            return false; // Action interdite
+        }
+    }
+    return true; // Action autorisée
+};
