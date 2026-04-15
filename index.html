@@ -137,3 +137,15 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
+<section id="page-annonces" class="mdt-page" style="display:none;">
+    <h1>Annonces de Service</h1>
+    
+    <div class="card" id="form-annonce" style="display:none; border: 1px solid var(--accent);">
+        <h3><i class="fas fa-edit"></i> Publier une note de service</h3>
+        <input type="text" id="ann-titre" placeholder="Sujet de l'annonce">
+        <textarea id="ann-texte" placeholder="Détails du message..." rows="4"></textarea>
+        <button onclick="addAnnonce()">DIFFUSER L'ANNONCE</button>
+    </div>
+
+    <div id="list-annonces"></div>
+</section>
