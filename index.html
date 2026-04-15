@@ -23,12 +23,49 @@
             <div class="brand">SASP MDT</div>
             <div class="service-status" id="service-btn" onclick="toggleService()">HORS SERVICE</div>
             <nav>
-                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-th-large"></i> Dashboard</div>
-                <div class="nav-item" data-page="page-service"><i class="fas fa-tower-broadcast"></i> Unités en service</div>
-                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
-                <div class="nav-item" data-page="page-vehicules"><i class="fas fa-car-side"></i> Véhicules</div>
-                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif SASP</div>
-                <div class="nav-item" data-page="page-rapports"><i class="fas fa-file-invoice"></i> Rapports d'arrestation</div>
+    <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-house"></i> Dashboard</div>
+    <div class="nav-item" data-page="page-annonces"><i class="fas fa-bullhorn"></i> Annonces</div> <div class="nav-item" data-page="page-service"><i class="fas fa-tower-broadcast"></i> Unités</div>
+    <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
+    <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif SASP</div>
+    <div class="nav-item" data-page="page-galerie"><i class="fas fa-images"></i> Galerie Photos</div> </nav>
+
+<section id="page-annonces" class="mdt-page" style="display:none;">
+    <h1>Annonces État-Major</h1>
+    <div class="card" id="form-annonce" style="display:none;">
+        <h3>Poster une annonce</h3>
+        <input type="text" id="ann-titre" placeholder="Titre de l'annonce">
+        <textarea id="ann-texte" placeholder="Message..."></textarea>
+        <button onclick="addAnnonce()">PUBLIER</button>
+    </div>
+    <div id="list-annonces"></div>
+</section>
+
+<section id="page-galerie" class="mdt-page" style="display:none;">
+    <h1>Galerie Photos</h1>
+    <div class="card">
+        <h3>Ajouter une photo</h3>
+        <input type="text" id="gal-url" placeholder="Lien de l'image (Imgur)">
+        <input type="text" id="gal-desc" placeholder="Description">
+        <button onclick="addPhoto()">AJOUTER</button>
+    </div>
+    <div class="grid" id="list-photos"></div>
+</section>
+
+<section id="page-effectifs" class="mdt-page" style="display:none;">
+    <h1>Annuaire SASP</h1>
+    <div class="card" id="form-sasp" style="display:none;">
+        <h3>Ajouter un Agent (Chef uniquement)</h3>
+        <div class="form-grid">
+            <input type="text" id="new-prenom" placeholder="Prénom">
+            <input type="text" id="new-nom" placeholder="Nom">
+            <input type="text" id="new-mat" placeholder="Matricule">
+            <input type="text" id="new-grade" placeholder="Grade">
+            <input type="text" id="new-photo" placeholder="Lien Photo">
+        </div>
+        <button onclick="addNewAgent()">AJOUTER L'AGENT</button>
+    </div>
+    <div class="grid" id="list-sasp"></div>
+</section>
             </nav>
             <div class="officer-card">
                 <p id="display-name"></p>
