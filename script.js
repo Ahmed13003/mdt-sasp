@@ -88,3 +88,19 @@ function toggleRegister() {
         document.querySelector('.login-box:not(#register-box)').style.display = "block";
     }
 }
+document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.mdt-page');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const target = item.getAttribute('data-page');
+            
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+
+            pages.forEach(p => p.style.display = 'none');
+            document.getElementById(target).style.display = 'block';
+        });
+    });
+});
