@@ -37,12 +37,12 @@ window.checkLogin = async () => {
         if (currentUser.statut === "valide") {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('mdt-app').style.display = 'flex';
-            document.getElementById('display-name').innerText = `${currentUser.prenom} ${currentUser.nom}`;
+            document.getElementById('display-name').innerText = currentUser.prenom + " " + currentUser.nom;
             document.getElementById('display-rank').innerText = currentUser.grade;
             setupPermissions();
-            loadAll();
-        } else { alert("Compte non validé"); }
-    } else { alert("Erreur d'identifiants"); }
+            loadAnnonces();
+        } else { alert("Accès non validé."); }
+    } else { alert("Matricule ou MDP incorrect."); }
 };
 
 // SERVICE
@@ -54,7 +54,7 @@ window.toggleService = async () => {
     await updateDoc(doc(db, "users", currentUser.id), { en_service: isOff });
 };
 
-// ANNONCES (Sergent+)
+// ANNONCES
 window.addAnnonce = async () => {
     const data = {
         titre: document.getElementById('ann-titre').value,
@@ -63,11 +63,12 @@ window.addAnnonce = async () => {
         timestamp: new Date()
     };
     await addDoc(collection(db, "annonces"), data);
-    alert("Annonce publiée !");
+    document.getElementById('ann-titre').value = "";
+    document.getElementById('ann-texte').value = "";
     loadAnnonces();
 };
 
-async function loadAnnonces() {
+window.loadAnnonces = async () => {
     const q = query(collection(db, "annonces"), orderBy("timestamp", "desc"));
     const snap = await getDocs(q);
     const container = document.getElementById('list-annonces');
@@ -80,19 +81,11 @@ async function loadAnnonces() {
             <small>Par ${a.auteur}</small>
         </div>`;
     });
-}
+};
 
-// PERMISSIONS
 function setupPermissions() {
     const g = currentUser.grade.toLowerCase();
     if (g.includes("sergent") || g.includes("lieutenant") || g.includes("capitaine") || g.includes("commander")) {
         document.getElementById('form-annonce').style.display = 'block';
-        document.getElementById('form-wanted').style.display = 'block';
     }
-}
-
-// Chargement initial
-function loadAll() {
-    loadAnnonces();
-    // Tu peux ajouter loadSASP, loadCitoyens, etc. ici
 }
