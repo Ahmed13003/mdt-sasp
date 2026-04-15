@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MDT SASP - San Andreas State Police</title>
+    <title>SASP MDT - Online RP</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,110 +10,77 @@
 
     <div id="login-overlay">
         <div id="login-box" class="auth-box">
-            <img src="https://i.imgur.com/8K9pX6F.png" alt="SASP Logo">
-            <h2>SASP - CONNEXION</h2>
-            <div class="input-group">
-                <i class="fas fa-id-badge"></i>
-                <input type="text" id="officer-id" placeholder="Matricule">
-            </div>
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="access-code" placeholder="Mot de passe">
-            </div>
-            <button onclick="checkLogin()">SE CONNECTER</button>
-            <p onclick="toggleAuth()" class="toggle-link">Nouveau matricule ? Demander un accès</p>
+            <h2>SASP CONNEXION</h2>
+            <input type="text" id="officer-id" placeholder="Matricule">
+            <input type="password" id="access-code" placeholder="Mot de passe">
+            <button onclick="checkLogin()">CONNEXION</button>
+            <p onclick="toggleAuth()" class="toggle-link">Créer une demande d'accès</p>
         </div>
-
         <div id="register-box" class="auth-box" style="display:none;">
-            <img src="https://i.imgur.com/8K9pX6F.png" alt="SASP Logo">
             <h2>DEMANDE D'ACCÈS</h2>
             <input type="text" id="reg-prenom" placeholder="Prénom">
             <input type="text" id="reg-nom" placeholder="Nom">
-            <input type="text" id="reg-matricule" placeholder="Matricule (ex: 01)">
-            <input type="text" id="reg-tel" placeholder="Numéro de téléphone">
-            <input type="password" id="reg-password" placeholder="Mot de passe souhaité">
-            <button onclick="sendRequest()">ENVOYER LA DEMANDE</button>
-            <p onclick="toggleAuth()" class="toggle-link">Déjà inscrit ? Se connecter</p>
+            <input type="text" id="reg-matricule" placeholder="Matricule">
+            <input type="password" id="reg-password" placeholder="Mot de passe">
+            <button onclick="sendRequest()">ENVOYER</button>
+            <p onclick="toggleAuth()" class="toggle-link">Retour</p>
         </div>
     </div>
 
     <div id="mdt-app" style="display:none;">
         <div class="sidebar">
-            <div class="brand">
-                <i class="fas fa-shield-halved"></i>
-                <span>SASP MDT</span>
-            </div>
-            
+            <div class="brand">SASP MDT</div>
             <nav>
-                <div class="nav-item active" data-page="page-dashboard">
-                    <i class="fas fa-house"></i> Dashboard
-                </div>
-                <div class="nav-item" data-page="page-citoyens">
-                    <i class="fas fa-users"></i> Citoyens
-                </div>
-                <div class="nav-item" data-page="page-vehicules">
-                    <i class="fas fa-car"></i> Véhicules
-                </div>
-                <div class="nav-item" id="nav-admin" data-page="page-admin" style="display:none; color: #c5a059;">
-                    <i class="fas fa-user-shield"></i> Administration
-                </div>
+                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-house"></i> Dashboard</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> Citoyens</div>
+                <div class="nav-item" data-page="page-vehicules"><i class="fas fa-car"></i> Véhicules</div>
+                <div class="nav-item" id="nav-wanted" style="display:none;" data-page="page-wanted"><i class="fas fa-skull"></i> Most Wanted</div>
+                <div class="nav-item" id="nav-admin" style="display:none;" data-page="page-admin"><i class="fas fa-user-shield"></i> Administration</div>
             </nav>
-
-            <div class="officer-card">
-                <img src="https://i.imgur.com/8K9pX6F.png" alt="Badge">
-                <div class="officer-info">
-                    <p id="display-name" class="name">Chargement...</p>
-                    <p id="display-rank" class="rank">Cadet</p>
-                </div>
+            <div style="padding: 20px; border-top: 1px solid #333;">
+                <p id="display-name" style="font-weight:bold;"></p>
+                <p id="display-rank" style="font-size:0.8rem;"></p>
             </div>
         </div>
 
         <main class="content">
             <section id="page-dashboard" class="mdt-page">
-                <header>
-                    <h1>État de San Andreas - Dashboard</h1>
-                    <div class="status-on">SASP EN SERVICE</div>
-                </header>
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><i class="fas fa-bullhorn"></i> AVIS DE RECHERCHE (BOLO)</h3>
-                        <p>Aucun suspect recherché actuellement.</p>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fas fa-clock"></i> DERNIERS APPELS</h3>
-                        <p>Aucun appel 911 récent.</p>
-                    </div>
-                </div>
+                <h1>Dashboard</h1>
+                <div class="card"><h3>Avis de recherche</h3><div id="list-wanted"></div></div>
             </section>
 
             <section id="page-citoyens" class="mdt-page" style="display:none;">
-                <header><h1>Base de Données Citoyens</h1></header>
+                <h1>Fichier des Citoyens</h1>
                 <div class="card">
-                    <input type="text" placeholder="Entrez un nom ou un prénom...">
-                    <button><i class="fas fa-search"></i> Rechercher</button>
+                    <h3>Ajouter un Citoyen</h3>
+                    <input type="text" id="cit-nom" placeholder="Nom Complet">
+                    <input type="text" id="cit-tel" placeholder="Téléphone">
+                    <button onclick="addCitoyen()">Ajouter</button>
                 </div>
+                <div class="card" id="list-citoyens"></div>
             </section>
 
             <section id="page-vehicules" class="mdt-page" style="display:none;">
-                <header><h1>Fichier National des Véhicules</h1></header>
+                <h1>Fichier des Véhicules</h1>
                 <div class="card">
-                    <input type="text" placeholder="Plaque d'immatriculation...">
-                    <button><i class="fas fa-car"></i> Rechercher</button>
+                    <h3>Ajouter un Véhicule</h3>
+                    <input type="text" id="veh-plaque" placeholder="Plaque">
+                    <input type="text" id="veh-modele" placeholder="Modèle">
+                    <button onclick="addVehicule()">Ajouter</button>
                 </div>
+                <div class="card" id="list-vehicules"></div>
             </section>
 
             <section id="page-admin" class="mdt-page" style="display:none;">
-                <header><h1>Panneau État-Major</h1></header>
-                <div class="card">
-                    <p>Gestion des effectifs et des accès en cours de développement...</p>
-                </div>
+                <h1>Validation des Comptes</h1>
+                <div id="list-pending-users"></div>
             </section>
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
@@ -127,82 +93,69 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        window.db = db; // Pour y accéder depuis script.js
 
-        // Basculer entre Login et Inscription
+        // --- AUTH ---
+        window.checkLogin = async () => {
+            const id = document.getElementById('officer-id').value;
+            const pass = document.getElementById('access-code').value;
+            const q = query(collection(db, "users"), where("matricule", "==", id), where("mdp", "==", pass));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+                const user = snap.docs[0].data();
+                if (user.statut === "valide") {
+                    window.currentUser = user;
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('mdt-app').style.display = 'flex';
+                    document.getElementById('display-name').innerText = user.prenom + " " + user.nom;
+                    const r = document.getElementById('display-rank');
+                    r.innerText = user.grade;
+                    r.className = "rank-" + user.grade.toLowerCase().replace(/\s+/g, '-');
+                    setupPermissions(user);
+                    loadData();
+                } else { alert("Compte non validé."); }
+            } else { alert("Erreur identifiants."); }
+        };
+
+        window.sendRequest = async () => {
+            await addDoc(collection(db, "users"), {
+                prenom: document.getElementById('reg-prenom').value,
+                nom: document.getElementById('reg-nom').value,
+                matricule: document.getElementById('reg-matricule').value,
+                mdp: document.getElementById('reg-password').value,
+                statut: "en_attente", grade: "Cadet"
+            });
+            alert("Demande envoyée !");
+            location.reload();
+        };
+
+        // --- DATA OPS ---
+        window.addCitoyen = async () => {
+            await addDoc(collection(db, "citoyens"), { nom: document.getElementById('cit-nom').value, tel: document.getElementById('cit-tel').value });
+            loadData();
+        };
+
+        window.addVehicule = async () => {
+            await addDoc(collection(db, "vehicules"), { plaque: document.getElementById('veh-plaque').value, modele: document.getElementById('veh-modele').value });
+            loadData();
+        };
+
+        window.deleteEntry = async (col, id) => {
+            const g = window.currentUser.grade.toLowerCase();
+            if (g.includes("sergent") || g.includes("lieutenant") || g.includes("capitaine") || g.includes("commander")) {
+                await deleteDoc(doc(db, col, id));
+                loadData();
+            } else { alert("Permission insuffisante pour supprimer."); }
+        };
+
         window.toggleAuth = () => {
             const l = document.getElementById('login-box');
             const r = document.getElementById('register-box');
             l.style.display = l.style.display === 'none' ? 'block' : 'none';
             r.style.display = r.style.display === 'none' ? 'block' : 'none';
-        }
+        };
 
-        // Envoyer une demande d'inscription
-        window.sendRequest = async () => {
-            const data = {
-                prenom: document.getElementById('reg-prenom').value,
-                nom: document.getElementById('reg-nom').value,
-                matricule: document.getElementById('reg-matricule').value,
-                tel: document.getElementById('reg-tel').value,
-                mdp: document.getElementById('reg-password').value,
-                statut: "en_attente",
-                grade: "Cadet"
-            };
-
-            if(!data.nom || !data.mdp || !data.matricule) return alert("Remplis tous les champs !");
-
-            try {
-                await addDoc(collection(db, "users"), data);
-                alert("Demande envoyée ! Contactez l'État-Major pour validation.");
-                toggleAuth();
-            } catch (e) { alert("Erreur: " + e); }
-        }
-
-        // Se connecter
-        window.checkLogin = async () => {
-            const id = document.getElementById('officer-id').value;
-            const pass = document.getElementById('access-code').value;
-            
-            const q = query(collection(db, "users"), where("matricule", "==", id), where("mdp", "==", pass));
-            const snap = await getDocs(q);
-            
-            if (!snap.empty) {
-                const user = snap.docs[0].data();
-                if (user.statut === "valide") {
-                    document.getElementById('login-overlay').style.display = 'none';
-                    document.getElementById('mdt-app').style.display = 'flex';
-                    
-                    // Mise à jour profil
-                    const rankElem = document.getElementById('display-rank');
-                    document.getElementById('display-name').innerText = `${user.prenom} ${user.nom}`;
-                    rankElem.innerText = user.grade;
-
-                    // Couleurs des grades
-                    const g = user.grade.toLowerCase();
-                    if(g.includes("directeur")) rankElem.style.color = "#ff0000";
-                    else if(g.includes("major")) rankElem.style.color = "#c5a059";
-                    else if(g.includes("officier")) rankElem.style.color = "#3498db";
-                    
-                    // Affichage Admin si Chef
-                    if(g.includes("major") || g.includes("directeur")) {
-                        document.getElementById('nav-admin').style.display = 'flex';
-                    }
-                } else {
-                    alert("Votre compte est en attente de validation.");
-                }
-            } else {
-                alert("Identifiants incorrects.");
-            }
-        }
     </script>
-
     <script src="script.js"></script>
 </body>
 </html>
-<nav>
-    <div class="nav-item" id="nav-dashboard" data-page="page-dashboard"><i class="fas fa-house"></i> Dashboard</div>
-    <div class="nav-item" id="nav-citoyens" data-page="page-citoyens"><i class="fas fa-users"></i> Citoyens</div>
-    <div class="nav-item" id="nav-vehicules" data-page="page-vehicules"><i class="fas fa-car"></i> Véhicules</div>
-    <div class="nav-item" id="nav-wanted" data-page="page-wanted" style="display:none;"><i class="fas fa-skull"></i> Most Wanted</div>
-    <div class="nav-item" id="nav-slo" data-page="page-slo" style="display:none;"><i class="fas fa-graduation-cap"></i> Gestion Officiers</div>
-    <div class="nav-item" id="nav-admin" data-page="page-admin" style="display:none;"><i class="fas fa-user-shield"></i> Administration</div>
-</nav>
