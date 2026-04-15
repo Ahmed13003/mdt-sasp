@@ -64,14 +64,77 @@
     <button class="btn-delete" style="background-color: red;">Supprimer le rapport</button> </div>
 
 </body> 
-<script src="script.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } 
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // TES INFOS QUE TU AS DANS TA CAPTURE D'ÉCRAN
+  const firebaseConfig = {
+    apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
+    authDomain: "mdt-onlinerp.firebaseapp.com",
+    projectId: "mdt-onlinerp",
+    storageBucket: "mdt-onlinerp.firebasestorage.app",
+    messagingSenderId: "102349354657",
+    appId: "1:102349354657:web:7085e7db36adec678d22e0",
+    measurementId: "G-1414SZ496Y"
+  };
+
+  // Initialisation
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // FONCTION POUR ENVOYER UNE DEMANDE D'INSCRIPTION
+  window.sendRequest = async function() {
+      const data = {
+          nom: document.getElementById('reg-nom').value,
+          prenom: document.getElementById('reg-prenom').value,
+          matricule: document.getElementById('reg-matricule').value,
+          tel: document.getElementById('reg-tel').value,
+          mdp: document.getElementById('reg-password').value,
+          statut: "en_attente",
+          grade: "Cadet"
+      };
+
+      try {
+          await addDoc(collection(db, "users"), data);
+          document.getElementById('reg-success').style.display = 'block';
+          alert("Demande envoyée à l'État-Major !");
+      } catch (e) {
+          console.error("Erreur d'envoi: ", e);
+      }
+  }
+
+  // FONCTION DE CONNEXION (Vérifie dans Firebase)
+  window.checkLogin = async function() {
+      const matricule = document.getElementById('officer-id').value;
+      const code = document.getElementById('access-code').value;
+      
+      const q = query(collection(db, "users"), 
+                where("matricule", "==", matricule), 
+                where("mdp", "==", code));
+
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+          const user = querySnapshot.docs[0].data();
+          if (user.statut === "valide") {
+              document.getElementById('login-overlay').style.display = 'none';
+              document.getElementById('mdt-app').style.display = 'flex';
+              document.querySelector('.officer-info .name').innerText = user.prenom + " " + user.nom;
+              document.querySelector('.officer-info .rank').innerText = user.grade;
+          } else {
+              alert("Votre compte n'a pas encore été validé par l'État-Major.");
+          }
+      } else {
+          alert("Identifiants incorrects.");
+      }
+  }
+</script>
 </body>
 </html>
 
 <link rel="stylesheet" href="style.css">
-
-<script src="script.js"></script>
-
 
 <head>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
