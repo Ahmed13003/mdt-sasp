@@ -156,3 +156,13 @@ button { background: var(--accent); color: #000; border: none; padding: 10px 20p
 .identity-card img { width: 100px; height: 100px; border-radius: 4px; object-fit: cover; border: 1px solid var(--accent); margin-bottom: 10px; }
 
 .rank { color: var(--accent); font-weight: bold; font-size: 0.8rem; }
+
+#list-photos img {
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#list-photos img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--accent);
+}
