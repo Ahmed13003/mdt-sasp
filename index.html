@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1, 10, 20, 0.85), rgba(1, 10, 20, 0.9)), url('https://i.imgur.com/vHqR98S.jpg') no-repeat center / cover; pointer-events: none;"></div>
+    <div style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1, 10, 20, 0.8), rgba(1, 10, 20, 0.9)), url('https://i.imgur.com/vHqR98S.jpg') no-repeat center / cover; pointer-events: none;"></div>
 
     <div id="login-overlay">
         <div class="auth-box">
@@ -59,19 +59,19 @@
             <section id="page-effectifs" class="mdt-page" style="display:none;">
                 <h1>Effectif SASP</h1>
                 <div class="card" id="form-sasp" style="display:none;">
-                    <h3><i class="fas fa-user-plus"></i> Recrutement</h3>
+                    <h3><i class="fas fa-user-plus"></i> Recruter un agent</h3>
                     <input type="text" id="new-prenom" placeholder="Prénom">
                     <input type="text" id="new-nom" placeholder="Nom">
                     <input type="text" id="new-mat" placeholder="Matricule">
-                    <input type="text" id="new-grade" placeholder="Grade">
-                    <button onclick="addNewAgent()">VALIDER L'AGENT</button>
+                    <input type="text" id="new-grade" placeholder="Grade (ex: Commander)">
+                    <button onclick="addNewAgent()">AJOUTER À LA BASE</button>
                 </div>
                 <div id="list-sasp" class="grid"></div>
             </section>
 
             <section id="page-annonces" class="mdt-page" style="display:none;"><h1>Annonces</h1><div id="list-annonces"></div></section>
-            <section id="page-citoyens" class="mdt-page" style="display:none;"><h1>Fichier Civil</h1></section>
-            <section id="page-rapports" class="mdt-page" style="display:none;"><h1>Rapports</h1></section>
+            <section id="page-citoyens" class="mdt-page" style="display:none;"><h1>Fichier Civil</h1><div id="list-citoyens" class="grid"></div></section>
+            <section id="page-rapports" class="mdt-page" style="display:none;"><h1>Rapports d'Arrestation</h1><div id="list-rapports"></div></section>
         </main>
     </div>
 
