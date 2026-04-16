@@ -2,15 +2,15 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SASP MDT - Origin</title>
+    <title>SASP MDT - Online RP</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1, 10, 20, 0.9), rgba(1, 10, 20, 0.9)), url('https://i.imgur.com/vHqR98S.jpg') no-repeat center / cover; pointer-events: none;"></div>
+    <div style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1, 10, 20, 0.85), rgba(1, 10, 20, 0.9)), url('https://i.imgur.com/vHqR98S.jpg') no-repeat center / cover; pointer-events: none;"></div>
 
     <div id="login-overlay">
-        <div id="login-box" class="auth-box">
+        <div class="auth-box">
             <div class="brand">SASP SERVICES</div>
             <input type="text" id="officer-id" placeholder="MATRICULE">
             <input type="password" id="access-code" placeholder="MOT DE PASSE">
@@ -29,67 +29,49 @@
                 <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
                 <div class="nav-item" data-page="page-rapports"><i class="fas fa-file-invoice"></i> Rapports</div>
                 <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif SASP</div>
-                <div class="nav-item" data-page="page-galerie"><i class="fas fa-images"></i> Galerie</div>
             </nav>
 
-            <div class="officer-card" style="padding: 15px; border-top: 1px solid rgba(0,210,255,0.2);">
-                <p id="display-name" style="font-weight: bold; color: #fff;"></p>
+            <div class="officer-card">
+                <p id="display-name" style="font-weight: bold; color:white;"></p>
                 <p id="display-rank" style="color: #00d2ff; font-size: 0.8rem; text-transform: uppercase;"></p>
             </div>
         </div>
 
         <main class="content">
             <section id="page-dashboard" class="mdt-page">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>Tableau de Bord</h1>
-                </div>
-
+                <h1>Tableau de Bord</h1>
                 <div class="grid">
                     <div class="card">
                         <h3><i class="fas fa-tower-broadcast"></i> Unités en service</h3>
                         <div id="list-units"></div>
                     </div>
                     <div class="card">
-                        <h3><i class="fas fa-skull"></i> Most Wanted (Recherchés)</h3>
+                        <h3><i class="fas fa-skull"></i> Most Wanted</h3>
                         <div id="form-wanted" style="display:none; margin-bottom: 15px;">
                             <input type="text" id="want-nom" placeholder="Nom du suspect">
-                            <input type="text" id="want-danger" placeholder="Niveau de danger">
-                            <button onclick="addWanted()">LANCER L'AVIS</button>
+                            <button onclick="addWanted()">LANCER RECHERCHE</button>
                         </div>
                         <div id="list-wanted"></div>
                     </div>
                 </div>
             </section>
 
-            <section id="page-annonces" class="mdt-page" style="display:none;">
-                <h1>Annonces de Service</h1>
-                <div class="card" id="form-annonce" style="display:none;">
-                    <h3>Poster une annonce</h3>
-                    <input type="text" id="ann-titre" placeholder="Titre">
-                    <textarea id="ann-texte" placeholder="Message..."></textarea>
-                    <button onclick="addAnnonce()">PUBLIER</button>
-                </div>
-                <div id="list-annonces"></div>
-            </section>
-
             <section id="page-effectifs" class="mdt-page" style="display:none;">
-                <h1>Annuaire SASP</h1>
+                <h1>Effectif SASP</h1>
                 <div class="card" id="form-sasp" style="display:none;">
-                    <h3><i class="fas fa-user-plus"></i> Recruter un nouvel agent</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <input type="text" id="new-prenom" placeholder="Prénom">
-                        <input type="text" id="new-nom" placeholder="Nom">
-                        <input type="text" id="new-mat" placeholder="Matricule">
-                        <input type="text" id="new-grade" placeholder="Grade">
-                    </div>
-                    <button onclick="addNewAgent()" style="margin-top: 10px;">VALIDER LE RECRUTEMENT</button>
+                    <h3><i class="fas fa-user-plus"></i> Recrutement</h3>
+                    <input type="text" id="new-prenom" placeholder="Prénom">
+                    <input type="text" id="new-nom" placeholder="Nom">
+                    <input type="text" id="new-mat" placeholder="Matricule">
+                    <input type="text" id="new-grade" placeholder="Grade">
+                    <button onclick="addNewAgent()">VALIDER L'AGENT</button>
                 </div>
                 <div id="list-sasp" class="grid"></div>
             </section>
 
-            <section id="page-citoyens" class="mdt-page" style="display:none;"><h1>Fichier Civil</h1><div id="list-citoyens" class="grid"></div></section>
-            <section id="page-rapports" class="mdt-page" style="display:none;"><h1>Rapports d'arrestation</h1><div id="list-rapports"></div></section>
-            <section id="page-galerie" class="mdt-page" style="display:none;"><h1>Galerie Photos</h1><div id="list-photos" class="grid"></div></section>
+            <section id="page-annonces" class="mdt-page" style="display:none;"><h1>Annonces</h1><div id="list-annonces"></div></section>
+            <section id="page-citoyens" class="mdt-page" style="display:none;"><h1>Fichier Civil</h1></section>
+            <section id="page-rapports" class="mdt-page" style="display:none;"><h1>Rapports</h1></section>
         </main>
     </div>
 
