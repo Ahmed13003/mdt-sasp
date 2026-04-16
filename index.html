@@ -101,3 +101,104 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SASP MDT - Online RP</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="wallpaper"></div>
+
+    <div id="login-overlay">
+        <div class="auth-box">
+            <img src="https://i.imgur.com/wasey9r.png" alt="SASP Logo" class="login-logo">
+            <div class="brand">SASP SERVICES</div>
+            <div id="auth-fields">
+                <input type="text" id="officer-id" placeholder="MATRICULE">
+                <input type="password" id="access-code" placeholder="MOT DE PASSE">
+                <button onclick="checkLogin()">CONNEXION</button>
+                <p style="margin-top:15px; font-size:0.7rem; color:gray; cursor:pointer;" onclick="toggleRegister(true)">DEMANDER UN ACCÈS</p>
+            </div>
+            <div id="register-fields" style="display:none;">
+                <input type="text" id="reg-prenom" placeholder="PRÉNOM">
+                <input type="text" id="reg-nom" placeholder="NOM">
+                <input type="text" id="reg-mat" placeholder="MATRICULE">
+                <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
+                <button onclick="handleRegister()">CRÉER MON COMPTE</button>
+                <p style="margin-top:15px; font-size:0.7rem; color:gray; cursor:pointer;" onclick="toggleRegister(false)">RETOUR</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="mdt-app" style="display:none;">
+        <div class="sidebar">
+            <div class="logo-area">
+                <img src="https://i.imgur.com/wasey9r.png" alt="Logo" class="sidebar-logo">
+                <div class="brand">SASP MDT</div>
+            </div>
+            <div id="service-btn" class="service-status" onclick="toggleService()">HORS SERVICE</div>
+            <nav>
+                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-th-large"></i> Dashboard</div>
+                <div class="nav-item" data-page="page-annonces"><i class="fas fa-bullhorn"></i> Annonces</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
+                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif SASP</div>
+            </nav>
+            <div class="officer-card">
+                <p id="display-name" style="font-weight: bold; color:white;"></p>
+                <p id="display-rank" style="color: #00d2ff; font-size: 0.8rem; text-transform: uppercase;"></p>
+            </div>
+        </div>
+
+        <main class="content">
+            <section id="page-dashboard" class="mdt-page">
+                <h1>Tableau de Bord</h1>
+                <div class="grid">
+                    <div class="card">
+                        <h3><i class="fas fa-tower-broadcast"></i> Unités en service</h3>
+                        <div id="list-units"></div>
+                    </div>
+                    <div class="card watermarked">
+                        <h3>Informations Système</h3>
+                        <p>Terminal SASP sécurisé. Toute utilisation est tracée.</p>
+                        <img src="https://i.imgur.com/wasey9r.png" class="bg-watermark">
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-annonces" class="mdt-page" style="display:none;">
+                <h1>Annonces</h1>
+                <div class="card" id="form-annonce" style="display:none;">
+                    <input type="text" id="ann-titre" placeholder="Titre">
+                    <textarea id="ann-texte" placeholder="Message..." rows="3"></textarea>
+                    <button onclick="addAnnonce()">PUBLIER</button>
+                </div>
+                <div id="list-annonces"></div>
+            </section>
+
+            <section id="page-citoyens" class="mdt-page" style="display:none;">
+                <h1>Fichier Civil</h1>
+                <div class="card">
+                    <h3>Enregistrer un Civil</h3>
+                    <div class="grid-inputs">
+                        <input type="text" id="civ-prenom" placeholder="Prénom">
+                        <input type="text" id="civ-nom" placeholder="Nom">
+                        <input type="text" id="civ-tel" placeholder="Téléphone">
+                        <input type="text" id="civ-naiss" placeholder="Naissance">
+                    </div>
+                    <button onclick="addCivil()">ENREGISTRER</button>
+                </div>
+                <div id="list-citoyens" class="grid"></div>
+            </section>
+
+            <section id="page-effectifs" class="mdt-page" style="display:none;">
+                <h1>Effectif Global</h1>
+                <div id="list-sasp" class="grid"></div>
+            </section>
+        </main>
+    </div>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
