@@ -78,3 +78,97 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SASP MDT - Online RP</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1, 10, 20, 0.8), rgba(1, 10, 20, 0.9)), url('https://i.imgur.com/vHqR98S.jpg') no-repeat center / cover; pointer-events: none;"></div>
+
+    <div id="login-overlay">
+        <div class="auth-box">
+            <div class="brand">SASP SERVICES</div>
+            <input type="text" id="officer-id" placeholder="MATRICULE">
+            <input type="password" id="access-code" placeholder="MOT DE PASSE">
+            <button onclick="checkLogin()">CONNEXION</button>
+        </div>
+    </div>
+
+    <div id="mdt-app" style="display:none;">
+        <div class="sidebar">
+            <div class="brand">SASP MDT</div>
+            <div id="service-btn" class="service-status" onclick="toggleService()">HORS SERVICE</div>
+            <nav>
+                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-th-large"></i> Dashboard</div>
+                <div class="nav-item" data-page="page-annonces"><i class="fas fa-bullhorn"></i> Annonces</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
+                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif SASP</div>
+            </nav>
+            <div class="officer-card">
+                <p id="display-name" style="font-weight: bold; color:white;"></p>
+                <p id="display-rank" style="color: #00d2ff; font-size: 0.8rem; text-transform: uppercase;"></p>
+            </div>
+        </div>
+
+        <main class="content">
+            <section id="page-dashboard" class="mdt-page">
+                <h1>Tableau de Bord</h1>
+                <div class="grid">
+                    <div class="card">
+                        <h3><i class="fas fa-tower-broadcast"></i> Unités en service</h3>
+                        <div id="list-units"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-skull"></i> Dernier Avis de Recherche</h3>
+                        <div id="list-wanted-dash"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-annonces" class="mdt-page" style="display:none;">
+                <h1>Annonces de Service</h1>
+                <div class="card" id="form-annonce" style="display:none;">
+                    <h3>Poster une annonce</h3>
+                    <input type="text" id="ann-titre" placeholder="Titre de l'annonce">
+                    <textarea id="ann-texte" placeholder="Message officiel..." rows="3"></textarea>
+                    <button onclick="addAnnonce()">PUBLIER</button>
+                </div>
+                <div id="list-annonces"></div>
+            </section>
+
+            <section id="page-citoyens" class="mdt-page" style="display:none;">
+                <h1>Fichier Civil</h1>
+                <div class="card">
+                    <h3>Enregistrer un Civil</h3>
+                    <div class="grid-inputs">
+                        <input type="text" id="civ-prenom" placeholder="Prénom">
+                        <input type="text" id="civ-nom" placeholder="Nom">
+                        <input type="text" id="civ-tel" placeholder="N° Téléphone">
+                        <input type="text" id="civ-naiss" placeholder="Date de naissance">
+                    </div>
+                    <button onclick="addCivil()">ENREGISTRER</button>
+                </div>
+                <div id="list-citoyens" class="grid"></div>
+            </section>
+
+            <section id="page-effectifs" class="mdt-page" style="display:none;">
+                <h1>Effectif Global SASP</h1>
+                <div class="card" id="form-sasp" style="display:none;">
+                    <h3>Recruter un agent</h3>
+                    <input type="text" id="new-prenom" placeholder="Prénom">
+                    <input type="text" id="new-nom" placeholder="Nom">
+                    <input type="text" id="new-mat" placeholder="Matricule">
+                    <input type="text" id="new-grade" placeholder="Grade">
+                    <button onclick="addNewAgent()">VALIDER</button>
+                </div>
+                <div id="list-sasp" class="grid"></div>
+            </section>
+        </main>
+    </div>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
