@@ -110,3 +110,17 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.getElementById(item.getAttribute('data-page')).style.display = 'block';
     });
 });
+// FONCTION ZOOM IMAGE
+window.zoomImage = (src) => {
+    const overlay = document.getElementById('image-overlay');
+    const img = document.getElementById('overlay-img');
+    img.src = src;
+    overlay.style.display = 'flex';
+};
+
+// Application du zoom sur les images existantes
+document.addEventListener('click', (e) => {
+    if(e.target.tagName === 'IMG' && e.target.id !== 'overlay-img') {
+        window.zoomImage(e.target.src);
+    }
+});
