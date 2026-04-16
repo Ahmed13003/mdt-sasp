@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot, deleteDoc, orderBy, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot, deleteDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
@@ -14,11 +14,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
-window.toggleRegister = (s) => {
-    document.getElementById('auth-fields').style.display = s ? 'none' : 'block';
-    document.getElementById('register-fields').style.display = s ? 'block' : 'none';
-};
-
 window.checkLogin = async () => {
     const mat = document.getElementById('officer-id').value.trim();
     const pass = document.getElementById('access-code').value.trim();
@@ -27,75 +22,78 @@ window.checkLogin = async () => {
     if (!snap.empty) {
         currentUser = snap.docs[0].data();
         currentUser.id = snap.docs[0].id;
-        if (currentUser.statut === "en_attente") return alert("Compte non validé.");
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('mdt-app').style.display = 'flex';
         document.getElementById('display-name').innerText = `OFFICIER : ${currentUser.nom}`;
-        if(currentUser.grade.toLowerCase().includes("commander") || currentUser.grade.toLowerCase().includes("sergent")) {
-            document.getElementById('form-sasp').style.display = 'block';
-        }
         initRealtime();
     } else alert("Identifiants incorrects.");
 };
 
+// PANIC BUTTON
+window.triggerPanic = async () => {
+    const newState = !currentUser.panic;
+    await updateDoc(doc(db, "users", currentUser.id), { panic: newState });
+    currentUser.panic = newState;
+};
+
+// RAPPORTS
+window.addReport = async () => {
+    const t = document.getElementById('rep-titre').value;
+    const c = document.getElementById('rep-contenu').value;
+    if(t && c) {
+        await addDoc(collection(db, "reports"), { 
+            titre: t, contenu: c, auteur: currentUser.nom, date: serverTimestamp() 
+        });
+        document.getElementById('rep-titre').value = "";
+        document.getElementById('rep-contenu').value = "";
+        alert("Rapport enregistré.");
+    }
+};
+
 window.toggleService = async () => {
-    const btn = document.getElementById('service-btn');
-    const isNow = btn.innerText === "HORS SERVICE";
+    const isNow = document.getElementById('service-btn').innerText === "HORS SERVICE";
     await updateDoc(doc(db, "users", currentUser.id), { en_service: isNow });
-    btn.innerText = isNow ? "EN SERVICE" : "HORS SERVICE";
-    btn.className = isNow ? "service-status active" : "service-status";
-};
-
-window.addCivil = async () => {
-    const p = document.getElementById('civ-prenom').value;
-    const n = document.getElementById('civ-nom').value;
-    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, casier: [] });
-    alert("Civil ajouté !");
-};
-
-window.addBolo = async () => {
-    const s = document.getElementById('bolo-sujet').value;
-    const r = document.getElementById('bolo-raison').value;
-    if(s && r) await addDoc(collection(db, "bolo"), { sujet: s, raison: r, auteur: currentUser.nom, date: serverTimestamp() });
-    alert("BOLO publié !");
-};
-
-window.deleteBolo = async (id) => {
-    if(confirm("Supprimer ?")) await deleteDoc(doc(db, "bolo", id));
+    document.getElementById('service-btn').innerText = isNow ? "EN SERVICE" : "HORS SERVICE";
+    document.getElementById('service-btn').className = isNow ? "service-status active" : "service-status";
 };
 
 function initRealtime() {
+    // USERS & PANIC
     onSnapshot(collection(db, "users"), (snap) => {
         const units = document.getElementById('list-units');
-        const sasp = document.getElementById('list-sasp');
-        units.innerHTML = ""; sasp.innerHTML = "";
+        const pZone = document.getElementById('panic-zone');
+        units.innerHTML = ""; pZone.innerHTML = "";
         snap.forEach(d => {
             const u = d.data();
-            if(u.en_service) units.innerHTML += `<div style="color:#00ff00;">● [${u.matricule}] ${u.nom}</div>`;
-            if(u.statut === "valide") sasp.innerHTML += `<div class="card"><strong>${u.prenom} ${u.nom}</strong><br>${u.grade}</div>`;
+            if(u.en_service) units.innerHTML += `<div style="color:${u.panic ? 'red' : '#00ff00'}; font-weight:bold; margin-bottom:10px;">● [${u.matricule}] ${u.nom} ${u.panic ? ' (URGENCE !)' : ''}</div>`;
+            if(u.panic) pZone.innerHTML += `<div class="panic-active-banner">⚠️ OFFICIER ${u.nom.toUpperCase()} EN DANGER (BOUTON PANIQUE ACTIVÉ) ⚠️</div>`;
         });
     });
 
-    onSnapshot(query(collection(db, "bolo"), orderBy("date", "desc")), (snap) => {
+    // RAPPORTS
+    onSnapshot(query(collection(db, "reports"), orderBy("date", "desc")), (snap) => {
+        const list = document.getElementById('list-reports');
+        list.innerHTML = "";
+        snap.forEach(d => {
+            const r = d.data();
+            list.innerHTML += `<div class="card"><strong>${r.titre}</strong><p style="margin-top:10px; font-size:0.9rem;">${r.contenu}</p><small style="opacity:0.5;">Par: ${r.auteur}</small></div>`;
+        });
+    });
+
+    // BOLO
+    onSnapshot(collection(db, "bolo"), (snap) => {
         const list = document.getElementById('list-bolo');
         const dash = document.getElementById('dash-bolo');
         list.innerHTML = ""; dash.innerHTML = "";
         snap.forEach(d => {
             const b = d.data();
-            const h = `<div class="card" style="border-left:5px solid gold;"><strong>⚠️ ${b.sujet}</strong><p>${b.raison}</p><button onclick="deleteBolo('${d.id}')" style="background:red; color:white; padding:5px; margin-top:10px;">X</button></div>`;
+            const h = `<div class="card" style="border-left:5px solid gold;"><strong>⚠️ ${b.sujet}</strong><p>${b.raison}</p></div>`;
             list.innerHTML += h; dash.innerHTML += h;
-        });
-    });
-
-    onSnapshot(collection(db, "civils"), (snap) => {
-        const cont = document.getElementById('list-citoyens'); cont.innerHTML = "";
-        snap.forEach(d => {
-            const c = d.data();
-            cont.innerHTML += `<div class="card"><strong>${c.prenom} ${c.nom}</strong></div>`;
         });
     });
 }
 
+// NAVIGATION
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
