@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
@@ -14,6 +14,80 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
+// CONNEXION
+window.checkLogin = async () => {
+    const mat = document.getElementById('officer-id').value;
+    const pass = document.getElementById('access-code').value;
+    try {
+        const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+            currentUser = snap.docs[0].data();
+            currentUser.id = snap.docs[0].id;
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('mdt-app').style.display = 'flex';
+            document.getElementById('display-name').innerText = `${currentUser.prenom} ${currentUser.nom}`;
+            document.getElementById('display-rank').innerText = currentUser.grade;
+            setupPermissions();
+            listenUnits();
+        } else { alert("Matricule ou MDP incorrect !"); }
+    } catch (e) { console.error("Erreur login:", e); }
+};
+
+// PERMISSIONS (Affiche les boutons selon le grade)
+function setupPermissions() {
+    const g = currentUser.grade.toLowerCase();
+    // Les gradés voient le formulaire "Most Wanted"
+    if (g.includes("sergent") || g.includes("commander") || g.includes("lieutenant")) {
+        document.getElementById('form-wanted').style.display = 'block';
+    }
+    // Seul le Commander peut recruter
+    if (g.includes("commander")) {
+        document.getElementById('form-sasp').style.display = 'block';
+    }
+}
+
+// UNITÉS EN DIRECT (DASHBOARD)
+function listenUnits() {
+    const q = query(collection(db, "users"), where("en_service", "==", true));
+    onSnapshot(q, (snap) => {
+        const container = document.getElementById('list-units');
+        container.innerHTML = "";
+        if(snap.empty) container.innerHTML = "<p style='color:gray;'>Aucune unité en service.</p>";
+        snap.forEach(d => {
+            const u = d.data();
+            container.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:#00ff00; font-weight:bold;">● [${u.matricule}] ${u.prenom} ${u.nom}</div>`;
+        });
+    });
+}
+
+// CHANGER D'ETAT DE SERVICE
+window.toggleService = async () => {
+    const btn = document.getElementById('service-btn');
+    const isOff = btn.innerText === "HORS SERVICE";
+    btn.innerText = isOff ? "EN SERVICE" : "HORS SERVICE";
+    btn.className = isOff ? "service-status active" : "service-status";
+    await updateDoc(doc(db, "users", currentUser.id), { en_service: isOff });
+};
+
+// RECRUTEMENT D'AGENT
+window.addNewAgent = async () => {
+    const p = document.getElementById('new-prenom').value;
+    const n = document.getElementById('new-nom').value;
+    const m = document.getElementById('new-mat').value;
+    const g = document.getElementById('new-grade').value;
+    if(!p || !n || !m) return alert("Veuillez remplir les informations !");
+    
+    await addDoc(collection(db, "users"), {
+        prenom: p, nom: n, matricule: m, grade: g,
+        mdp: "1234", statut: "valide", en_service: false
+    });
+    alert("Agent ajouté avec succès !");
+    // Vide les champs
+    document.getElementById('new-prenom').value = ""; document.getElementById('new-nom').value = "";
+    document.getElementById('new-mat').value = ""; document.getElementById('new-grade').value = "";
+};
+
 // NAVIGATION
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -23,125 +97,3 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.getElementById(item.getAttribute('data-page')).style.display = 'block';
     });
 });
-
-// CONNEXION
-window.checkLogin = async () => {
-    const id = document.getElementById('officer-id').value;
-    const pass = document.getElementById('access-code').value;
-    const q = query(collection(db, "users"), where("matricule", "==", id), where("mdp", "==", pass));
-    const snap = await getDocs(q);
-
-    if (!snap.empty) {
-        currentUser = snap.docs[0].data();
-        currentUser.id = snap.docs[0].id;
-        if (currentUser.statut === "valide") {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('mdt-app').style.display = 'flex';
-            document.getElementById('display-name').innerText = currentUser.prenom + " " + currentUser.nom;
-            document.getElementById('display-rank').innerText = currentUser.grade;
-            setupPermissions();
-            loadAnnonces();
-        } else { alert("Accès non validé."); }
-    } else { alert("Matricule ou MDP incorrect."); }
-};
-
-// SERVICE
-window.toggleService = async () => {
-    const btn = document.getElementById('service-btn');
-    const isOff = btn.innerText === "HORS SERVICE";
-    btn.innerText = isOff ? "EN SERVICE" : "HORS SERVICE";
-    btn.className = isOff ? "service-status active" : "service-status";
-    await updateDoc(doc(db, "users", currentUser.id), { en_service: isOff });
-};
-
-// ANNONCES
-window.addAnnonce = async () => {
-    const data = {
-        titre: document.getElementById('ann-titre').value,
-        message: document.getElementById('ann-texte').value,
-        auteur: currentUser.prenom + " " + currentUser.nom,
-        timestamp: new Date()
-    };
-    await addDoc(collection(db, "annonces"), data);
-    document.getElementById('ann-titre').value = "";
-    document.getElementById('ann-texte').value = "";
-    loadAnnonces();
-};
-
-window.loadAnnonces = async () => {
-    const q = query(collection(db, "annonces"), orderBy("timestamp", "desc"));
-    const snap = await getDocs(q);
-    const container = document.getElementById('list-annonces');
-    container.innerHTML = "";
-    snap.forEach(d => {
-        const a = d.data();
-        container.innerHTML += `<div class="card" style="border-left:4px solid var(--accent)">
-            <h3 style="color:var(--accent)">${a.titre}</h3>
-            <p>${a.message}</p>
-            <small>Par ${a.auteur}</small>
-        </div>`;
-    });
-};
-
-function setupPermissions() {
-    const g = currentUser.grade.toLowerCase();
-    if (g.includes("sergent") || g.includes("lieutenant") || g.includes("capitaine") || g.includes("commander")) {
-        document.getElementById('form-annonce').style.display = 'block';
-    }
-}
-
-
-// --- FONCTION POUR VOIR LES UNITÉS (DASHBOARD) ---
-async function loadUnits() {
-    const q = query(collection(db, "users"), where("en_service", "==", true));
-    const snap = await getDocs(q);
-    const container = document.getElementById('list-units');
-    if(!container) return;
-    
-    container.innerHTML = "";
-    if(snap.empty) container.innerHTML = "<p style='color:gray;'>Aucune unité en patrouille.</p>";
-    
-    snap.forEach(d => {
-        const u = d.data();
-        container.innerHTML += `
-            <div style="padding:10px; border-bottom:1px solid #222; display:flex; justify-content:space-between;">
-                <span><strong>[${u.matricule}]</strong> ${u.prenom} ${u.nom}</span>
-                <span style="color:#00ff00; font-size:0.8rem;">● EN PATROUILLE</span>
-            </div>`;
-    });
-}
-
-// --- AJOUTER UN AGENT (EFFECTIF) ---
-window.addNewAgent = async () => {
-    const prenom = document.getElementById('new-prenom').value;
-    const nom = document.getElementById('new-nom').value;
-    const mat = document.getElementById('new-mat').value;
-    const grade = document.getElementById('new-grade').value;
-
-    if(!prenom || !nom || !mat) return alert("Remplissez tout !");
-
-    await addDoc(collection(db, "users"), {
-        prenom, nom, matricule: mat, grade,
-        mdp: "1234", statut: "valide", en_service: false
-    });
-    alert("Agent ajouté !");
-    loadSASP();
-};
-
-// --- GESTION DES PERMISSIONS (SERGENT / COMMANDER) ---
-function setupPermissions() {
-    const g = currentUser.grade.toLowerCase();
-    
-    // Tout le monde voit les unités, mais seuls les gradés postent
-    if (g.includes("sergent") || g.includes("commander") || g.includes("lieutenant")) {
-        document.getElementById('form-annonce').style.display = 'block';
-        document.getElementById('form-wanted').style.display = 'block';
-    }
-    
-    // Seul l'État-Major (Commander) ajoute des agents
-    if (g.includes("commander")) {
-        document.getElementById('form-sasp').style.display = 'block';
-    }
-}
-
-// N'oublie pas d'appeler loadUnits() dans ta fonction loadAll()
