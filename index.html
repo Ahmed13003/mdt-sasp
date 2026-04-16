@@ -15,7 +15,16 @@
             <div id="auth-fields">
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
-                <button onclick="checkLogin()">OUVRIR LA SESSION</button>
+                <button onclick="checkLogin()">CONNEXION</button>
+                <p onclick="toggleRegister(true)" style="color:var(--accent); cursor:pointer; margin-top:20px;">CRÉER UN COMPTE</p>
+            </div>
+            <div id="register-fields" style="display:none;">
+                <input type="text" id="reg-prenom" placeholder="PRÉNOM">
+                <input type="text" id="reg-nom" placeholder="NOM">
+                <input type="text" id="reg-mat" placeholder="MATRICULE">
+                <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
+                <button onclick="handleRegister()">ENVOYER LA DEMANDE</button>
+                <p onclick="toggleRegister(false)" style="color:gray; cursor:pointer; margin-top:20px;">RETOUR</p>
             </div>
         </div>
     </div>
@@ -34,13 +43,12 @@
                 <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-desktop"></i> DASHBOARD</div>
                 <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL</div>
                 <div class="nav-item" data-page="page-reports"><i class="fas fa-file-signature"></i> RAPPORTS</div>
-                <div class="nav-item" data-page="page-map"><i class="fas fa-map-marked-alt"></i> CARTE SECTEURS</div>
-                <div class="nav-item" data-page="page-penal"><i class="fas fa-book-dead"></i> CODE PÉNAL</div>
+                <div class="nav-item" data-page="page-map" onclick="setTimeout(refreshMap, 100)"><i class="fas fa-map-marked-alt"></i> CARTE TACTIQUE</div>
+                <div class="nav-item" data-page="page-penal"><i class="fas fa-book"></i> CODE PÉNAL</div>
                 <div class="nav-item" data-page="page-bolo"><i class="fas fa-search"></i> BOLO</div>
-                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-id-badge"></i> EFFECTIF</div>
             </nav>
 
-            <div id="display-name" style="margin-top:auto; padding:30px; font-weight:bold; color:var(--accent); border-top:1px solid #333; text-align:center; background:rgba(0,0,0,0.3);"></div>
+            <div id="display-name" style="margin-top:auto; padding:25px; font-weight:bold; color:var(--accent); border-top:1px solid #333; text-align:center;"></div>
         </div>
 
         <main class="content">
@@ -49,38 +57,36 @@
             <section id="page-dashboard" class="mdt-page">
                 <h1>Tableau de Bord</h1>
                 <div class="grid">
-                    <div class="card"><h3>PATROUILLES ACTIVES</h3><div id="list-units" style="font-size:1.4rem; margin-top:20px;"></div></div>
-                    <div class="card"><h3>AVIS DE RECHERCHE</h3><div id="dash-bolo"></div></div>
+                    <div class="card"><h3>PATROUILLES EN SERVICE</h3><div id="list-units" style="font-size:1.4rem; margin-top:20px;"></div></div>
+                    <div class="card"><h3>RECHERCHES ACTIVES</h3><div id="dash-bolo"></div></div>
                 </div>
             </section>
 
-            <section id="page-citoyens" class="mdt-page" style="display:none;">
-                <h1>Fichier Civil</h1>
-                <div class="card" style="margin-bottom:20px;">
-                    <h3>Enregistrer un citoyen</h3>
-                    <div class="grid" style="grid-template-columns: 1fr 1fr; margin-top:10px;">
-                        <input type="text" id="civ-prenom" placeholder="Prénom">
-                        <input type="text" id="civ-nom" placeholder="Nom">
-                    </div>
-                    <button onclick="addCivil()">VALIDER DANS LE SYSTÈME</button>
-                </div>
-                <div id="list-citoyens" class="grid"></div>
+            <section id="page-map" class="mdt-page" style="display:none;">
+                <h1>Carte Tactique</h1>
+                <div id="tactical-map" class="map-wrapper" onclick="handleMapClick(event)"></div>
             </section>
 
             <section id="page-reports" class="mdt-page" style="display:none;">
                 <h1>Rapports d'Intervention</h1>
                 <div class="card" style="margin-bottom:20px;">
-                    <h3>Rédiger un rapport</h3>
                     <input type="text" id="rep-titre" placeholder="Objet de l'intervention">
-                    <textarea id="rep-contenu" rows="5" placeholder="Détails de l'opération..."></textarea>
-                    <button onclick="addReport()">TRANSMETTRE LE RAPPORT</button>
+                    <textarea id="rep-contenu" rows="4" placeholder="Résumé des faits..."></textarea>
+                    <button onclick="addReport()">PUBLIER LE RAPPORT</button>
                 </div>
                 <div id="list-reports" class="grid"></div>
             </section>
 
-            <section id="page-map" class="mdt-page" style="display:none;">
-                <h1>Carte Patrouille</h1>
-                <div class="map-container"></div>
+            <section id="page-citoyens" class="mdt-page" style="display:none;">
+                <h1>Fichier Civil</h1>
+                <div class="card" style="margin-bottom:20px;">
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; margin-bottom:10px;">
+                        <input type="text" id="civ-prenom" placeholder="Prénom">
+                        <input type="text" id="civ-nom" placeholder="Nom">
+                    </div>
+                    <button onclick="addCivil()">ENREGISTRER CIVIL</button>
+                </div>
+                <div id="list-citoyens" class="grid"></div>
             </section>
 
             <section id="page-penal" class="mdt-page" style="display:none;">
@@ -91,37 +97,14 @@
             <section id="page-bolo" class="mdt-page" style="display:none;">
                 <h1>BOLO</h1>
                 <div class="card" style="margin-bottom:20px;">
-                    <input type="text" id="bolo-sujet" placeholder="Individu / Plaque">
-                    <textarea id="bolo-raison" placeholder="Raison de la recherche..."></textarea>
-                    <button onclick="addBolo()">LANCER L'ALERTE</button>
+                    <input type="text" id="bolo-sujet" placeholder="Cible">
+                    <textarea id="bolo-raison" placeholder="Raison..."></textarea>
+                    <button onclick="addBolo()">LANCER ALERTE</button>
                 </div>
                 <div id="list-bolo" class="grid"></div>
-            </section>
-
-            <section id="page-effectifs" class="mdt-page" style="display:none;">
-                <h1>Gestion Effectif</h1>
-                <div id="form-sasp" class="card" style="display:none; margin-bottom:20px;">
-                    <input type="text" id="new-prenom" placeholder="Prénom">
-                    <input type="text" id="new-nom" placeholder="Nom">
-                    <input type="text" id="new-mat" placeholder="Matricule">
-                    <input type="text" id="new-grade" placeholder="Grade">
-                    <button onclick="addNewAgent()">RECRUTER AGENT</button>
-                </div>
-                <div id="list-sasp" class="grid"></div>
             </section>
         </main>
     </div>
     <script type="module" src="script.js"></script>
 </body>
 </html>
-<section id="page-map" class="mdt-page" style="display:none;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h1>Carte Tactique & Points Illégaux</h1>
-        <p style="color:var(--accent); font-size:0.8rem;">Cliquez sur la carte pour signaler un point</p>
-    </div>
-    
-    <div class="card" style="padding:10px;">
-        <div id="tactical-map" class="map-wrapper" onclick="handleMapClick(event)">
-            </div>
-    </div>
-</section>
