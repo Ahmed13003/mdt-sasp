@@ -42,9 +42,57 @@ window.checkLogin = async () => {
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('mdt-app').style.display = 'flex';
         document.getElementById('display-name').innerText = `${currentUser.grade.toUpperCase()} : ${currentUser.nom.toUpperCase()}`;
-        initRealtime();
-    } else alert("Erreur identifiants.");
-};
+        function initRealtime() {
+    // SURVEILLANCE DES AGENTS & PANIC
+    onSnapshot(collection(db, "users"), (snap) => {
+        const units = document.getElementById('list-units');
+        const pZone = document.getElementById('panic-zone');
+        units.innerHTML = ""; 
+        pZone.innerHTML = "";
+        
+        snap.forEach(d => {
+            const u = d.data();
+            // Liste des unités à gauche
+            if(u.en_service) {
+                units.innerHTML += `<div style="color:${u.panic ? 'red' : '#00ff00'}; font-weight:bold; margin-bottom:10px;">● [${u.matricule}] ${u.grade.toUpperCase()} ${u.nom.toUpperCase()}</div>`;
+            }
+            
+            // BANDEAU DE PANIQUE (CORRIGÉ POUR LE GRADE)
+            if(u.panic) {
+                pZone.innerHTML += `
+                    <div class="panic-banner">
+                        🚨 ${u.grade.toUpperCase()} ${u.nom.toUpperCase()} EN DANGER (BOUTON PANIQUE ACTIVÉ) 🚨
+                    </div>`;
+            }
+        });
+    });
+
+    // SURVEILLANCE DES POINTS SUR LA CARTE
+    onSnapshot(collection(db, "markers"), (snap) => {
+        const map = document.getElementById('tactical-map');
+        // On nettoie les anciens points avant d'afficher les nouveaux
+        map.querySelectorAll('.map-marker').forEach(m => m.remove());
+        
+        snap.forEach(d => {
+            const m = d.data();
+            const el = document.createElement('div');
+            el.className = 'map-marker';
+            el.style.left = m.x + '%';
+            el.style.top = m.y + '%';
+            
+            // Clic droit pour supprimer
+            el.oncontextmenu = (e) => { 
+                e.preventDefault(); 
+                if(confirm("Supprimer ce point tactique ?")) deleteDoc(doc(db, "markers", d.id));
+            };
+            
+            el.innerHTML = `<div class="marker-label">${m.label.toUpperCase()}</div>`;
+            map.appendChild(el);
+        });
+    });
+
+    // Garde le reste de tes snapshots (reports, bolo, civils) ici...
+}
 
 // ACTIONS
 window.toggleService = async () => {
