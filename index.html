@@ -108,3 +108,17 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
+<section id="page-map" class="mdt-page" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h1>CARTE TACTIQUE SATELLITE</h1>
+        <div style="display:flex; gap:10px;">
+            <button onclick="window.open('https://gta-5-map.com', '_blank')" style="background:#444; width:auto; padding:10px 20px;">VOIR CARTE OFFICIELLE</button>
+            <div style="background:rgba(0,210,255,0.1); padding:10px; border-radius:5px; border:1px solid var(--accent); font-size:0.8rem;">
+                <strong>CLIC GAUCHE :</strong> Poser un point | <strong>CLIC DROIT :</strong> Supprimer
+            </div>
+        </div>
+    </div>
+    
+    <div id="tactical-map" class="map-wrapper" onclick="window.handleMapClick(event)">
+        </div>
+</section>
