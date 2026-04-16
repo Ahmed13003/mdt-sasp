@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot, deleteDoc, orderBy, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
@@ -14,142 +14,119 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
-// GESTION AFFICHAGE INSCRIPTION
-window.toggleRegister = (show) => {
-    document.getElementById('auth-fields').style.display = show ? 'none' : 'block';
-    document.getElementById('register-fields').style.display = show ? 'block' : 'none';
+// AUTH
+window.toggleRegister = (s) => {
+    document.getElementById('auth-fields').style.display = s ? 'none' : 'block';
+    document.getElementById('register-fields').style.display = s ? 'block' : 'none';
 };
 
-// ENVOI DE LA DEMANDE D'ACCÈS
 window.handleRegister = async () => {
-    const p = document.getElementById('reg-prenom').value.trim();
-    const n = document.getElementById('reg-nom').value.trim();
-    const m = document.getElementById('reg-mat').value.trim();
-    const ps = document.getElementById('reg-pass').value.trim();
-
-    if(!p || !n || !m || !ps) return alert("Veuillez remplir tous les champs.");
-
-    try {
-        await addDoc(collection(db, "users"), {
-            prenom: p, nom: n, matricule: m, mdp: ps,
-            grade: "En attente", en_service: false, statut: "en_attente"
-        });
-        alert("Demande envoyée ! Un administrateur doit valider votre compte.");
-        window.toggleRegister(false);
-    } catch (e) { alert("Erreur lors de l'envoi."); }
+    const p = document.getElementById('reg-prenom').value;
+    const n = document.getElementById('reg-nom').value;
+    const m = document.getElementById('reg-mat').value;
+    const ps = document.getElementById('reg-pass').value;
+    if(!p || !n || !m || !ps) return alert("Champs vides");
+    await addDoc(collection(db, "users"), { prenom: p, nom: n, matricule: m, mdp: ps, grade: "En attente", en_service: false, statut: "en_attente", panic: false });
+    alert("Demande envoyée !"); window.toggleRegister(false);
 };
 
-// CONNEXION AVEC VÉRIFICATION DU STATUT
 window.checkLogin = async () => {
-    const mat = document.getElementById('officer-id').value.trim();
-    const pass = document.getElementById('access-code').value.trim();
-    
-    try {
-        const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
-        const snap = await getDocs(q);
-        
-        if (!snap.empty) {
-            const userData = snap.docs[0].data();
-            
-            // VÉRIFICATION SI VALIDÉ
-            if (userData.statut === "en_attente") {
-                return alert("Votre compte est en attente de validation par un haut gradé.");
-            }
-
-            currentUser = userData;
-            currentUser.id = snap.docs[0].id;
-            
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('mdt-app').style.display = 'flex';
-            document.getElementById('display-name').innerText = `${currentUser.prenom} ${currentUser.nom}`;
-            document.getElementById('display-rank').innerText = currentUser.grade;
-            
-            setupPermissions();
-            initRealtime();
-        } else {
-            alert("Matricule ou MDP incorrect.");
-        }
-    } catch (e) { console.error(e); }
+    const mat = document.getElementById('officer-id').value;
+    const pass = document.getElementById('access-code').value;
+    const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+        const u = snap.docs[0].data();
+        if (u.statut === "en_attente") return alert("Compte non validé.");
+        currentUser = u; currentUser.id = snap.docs[0].id;
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('mdt-app').style.display = 'flex';
+        document.getElementById('display-name').innerText = `${u.prenom} ${u.nom}`;
+        document.getElementById('display-rank').innerText = u.grade;
+        if(u.grade.toLowerCase().includes("sergent") || u.grade.toLowerCase().includes("commander")) document.getElementById('form-annonce').style.display = 'block';
+        initRealtime();
+    } else alert("Erreur identifiants.");
 };
 
-function setupPermissions() {
-    const g = currentUser.grade.toLowerCase();
-    if (g.includes("sergent") || g.includes("commander") || g.includes("lieutenant")) {
-        document.getElementById('form-annonce').style.display = 'block';
-    }
-}
-
-function initRealtime() {
-    onSnapshot(query(collection(db, "users"), where("en_service", "==", true)), (snap) => {
-        const cont = document.getElementById('list-units');
-        cont.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            cont.innerHTML += `<div style="color:#00ff00; padding:5px;">● [${u.matricule}] ${u.prenom} ${u.nom}</div>`;
-        });
-    });
-
-    onSnapshot(query(collection(db, "annonces"), orderBy("date", "desc")), (snap) => {
-        const cont = document.getElementById('list-annonces');
-        cont.innerHTML = "";
-        snap.forEach(d => {
-            const a = d.data();
-            const g = currentUser.grade.toLowerCase();
-            const canDel = g.includes("sergent") || g.includes("commander") || g.includes("lieutenant");
-            cont.innerHTML += `<div class="card" style="border-left:4px solid var(--accent)">
-                <h4>${a.titre}</h4><p>${a.texte}</p><small>Par ${a.auteur}</small><br>
-                ${canDel ? `<button class="btn-del" onclick="window.delDoc('annonces','${d.id}')">SUPPRIMER</button>` : ''}
-            </div>`;
-        });
-    });
-
-    onSnapshot(collection(db, "civils"), (snap) => {
-        const cont = document.getElementById('list-citoyens');
-        cont.innerHTML = "";
-        snap.forEach(d => {
-            const c = d.data();
-            cont.innerHTML += `<div class="card"><strong>${c.prenom} ${c.nom}</strong><br>Tel: ${c.tel} | Né: ${c.naissance}</div>`;
-        });
-    });
-
-    onSnapshot(collection(db, "users"), (snap) => {
-        const cont = document.getElementById('list-sasp');
-        cont.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            if(u.statut === "valide") {
-                cont.innerHTML += `<div class="card"><strong>[${u.matricule}] ${u.prenom} ${u.nom}</strong><br><span style="color:var(--accent)">${u.grade}</span></div>`;
-            }
-        });
-    });
-}
-
-window.addAnnonce = async () => {
-    const t = document.getElementById('ann-titre').value;
-    const m = document.getElementById('ann-texte').value;
-    if(t && m) await addDoc(collection(db, "annonces"), { titre: t, texte: m, auteur: currentUser.prenom, date: new Date() });
-    document.getElementById('ann-titre').value = ""; document.getElementById('ann-texte').value = "";
+// ACTIONS
+window.triggerPanic = async () => {
+    const isPanic = currentUser.panic || false;
+    await updateDoc(doc(db, "users", currentUser.id), { panic: !isPanic });
+    currentUser.panic = !isPanic;
 };
 
 window.addCivil = async () => {
     const p = document.getElementById('civ-prenom').value;
     const n = document.getElementById('civ-nom').value;
-    const t = document.getElementById('civ-tel').value;
-    const d = document.getElementById('civ-naiss').value;
-    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, tel: t, naissance: d });
-    alert("Civil enregistré !");
+    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, tel: document.getElementById('civ-tel').value, naissance: document.getElementById('civ-naiss').value, casier: [] });
+    alert("Civil ajouté !");
 };
+
+window.addCasier = async (id) => {
+    const crime = prompt("Entrez le délit / crime :");
+    if(crime) await updateDoc(doc(db, "civils", id), { casier: arrayUnion(`${new Date().toLocaleDateString()} - ${crime}`) });
+};
+
+window.addBolo = async () => {
+    const s = document.getElementById('bolo-sujet').value;
+    const r = document.getElementById('bolo-raison').value;
+    if(s) await addDoc(collection(db, "bolo"), { sujet: s, raison: r, auteur: currentUser.nom, date: serverTimestamp() });
+    document.getElementById('bolo-sujet').value = ""; document.getElementById('bolo-raison').value = "";
+};
+
+// TEMPS RÉEL
+function initRealtime() {
+    onSnapshot(collection(db, "users"), (snap) => {
+        const units = document.getElementById('list-units');
+        const sasp = document.getElementById('list-sasp');
+        const panicAlert = document.getElementById('panic-alert');
+        units.innerHTML = ""; sasp.innerHTML = ""; panicAlert.innerHTML = "";
+        snap.forEach(d => {
+            const u = d.data();
+            if(u.en_service) units.innerHTML += `<div style="color:${u.panic ? 'red' : '#00ff00'}">● [${u.matricule}] ${u.nom} ${u.panic ? '!!! PANIC !!!' : ''}</div>`;
+            if(u.panic) panicAlert.innerHTML += `<div class="panic-active">⚠️ ALERTE PANIC : OFFICIER ${u.nom.toUpperCase()} EN DANGER !</div>`;
+            if(u.statut === "valide") sasp.innerHTML += `<div class="card"><strong>${u.prenom} ${u.nom}</strong><br>${u.grade}</div>`;
+        });
+    });
+
+    onSnapshot(collection(db, "civils"), (snap) => {
+        const cont = document.getElementById('list-citoyens'); cont.innerHTML = "";
+        snap.forEach(d => {
+            const c = d.data();
+            let crimes = c.casier ? c.casier.map(m => `<div>• ${m}</div>`).join('') : "Aucun antécédent";
+            cont.innerHTML += `<div class="card">
+                <strong>${c.prenom} ${c.nom}</strong><br><small>Tel: ${c.tel}</small>
+                <div class="casier-list"><strong>CASIER :</strong>${crimes}</div>
+                <button onclick="window.addCasier('${d.id}')" style="margin-top:10px; font-size:0.7rem;">+ AJOUTER DÉLIT</button>
+            </div>`;
+        });
+    });
+
+    onSnapshot(query(collection(db, "bolo"), orderBy("date", "desc")), (snap) => {
+        const list = document.getElementById('list-bolo'); const dash = document.getElementById('dash-bolo');
+        list.innerHTML = ""; dash.innerHTML = "";
+        snap.forEach(d => {
+            const b = d.data();
+            const h = `<div class="card" style="border-left:4px solid gold"><strong>${b.sujet}</strong><br>${b.raison}<br><small>Par ${b.auteur}</small></div>`;
+            list.innerHTML += h; dash.innerHTML += h;
+        });
+    });
+
+    // On garde aussi les annonces...
+    onSnapshot(query(collection(db, "annonces"), orderBy("date", "desc")), (snap) => {
+        const cont = document.getElementById('list-annonces'); cont.innerHTML = "";
+        snap.forEach(d => {
+            const a = d.data();
+            cont.innerHTML += `<div class="card"><h4>${a.titre}</h4><p>${a.texte}</p></div>`;
+        });
+    });
+}
 
 window.toggleService = async () => {
-    const btn = document.getElementById('service-btn');
-    const isOff = btn.innerText === "HORS SERVICE";
-    btn.innerText = isOff ? "EN SERVICE" : "HORS SERVICE";
-    btn.className = isOff ? "service-status active" : "service-status";
+    const isOff = document.getElementById('service-btn').innerText === "HORS SERVICE";
+    document.getElementById('service-btn').innerText = isOff ? "EN SERVICE" : "HORS SERVICE";
+    document.getElementById('service-btn').className = isOff ? "service-status active" : "service-status";
     await updateDoc(doc(db, "users", currentUser.id), { en_service: isOff });
-};
-
-window.delDoc = async (coll, id) => {
-    if(confirm("Supprimer ?")) await deleteDoc(doc(db, coll, id));
 };
 
 document.querySelectorAll('.nav-item').forEach(item => {
