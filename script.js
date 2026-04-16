@@ -14,19 +14,19 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
-// CONNEXION INCASSABLE
+// CONNEXION
 window.checkLogin = async () => {
-    const mat = document.getElementById('officer-id').value;
-    const pass = document.getElementById('access-code').value;
-    if(!mat || !pass) return alert("Champs vides !");
-
+    const mat = document.getElementById('officer-id').value.trim();
+    const pass = document.getElementById('access-code').value.trim();
+    
     try {
         const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
         const snap = await getDocs(q);
         
         if (!snap.empty) {
-            currentUser = snap.docs[0].data();
-            currentUser.id = snap.docs[0].id;
+            const userDoc = snap.docs[0];
+            currentUser = userDoc.data();
+            currentUser.id = userDoc.id;
             
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('mdt-app').style.display = 'flex';
@@ -34,62 +34,66 @@ window.checkLogin = async () => {
             document.getElementById('display-rank').innerText = currentUser.grade;
             
             setupPermissions();
-            initRealtime();
+            startMDT();
         } else {
-            alert("Matricule ou Mot de passe incorrect.");
+            alert("Accès refusé : Matricule ou MDP erroné.");
         }
     } catch (e) {
-        alert("Erreur de connexion Firebase.");
         console.error(e);
+        alert("Erreur de liaison avec la base de données.");
     }
 };
 
 function setupPermissions() {
     const g = currentUser.grade.toLowerCase();
+    // Sergent et + peuvent faire des annonces
     if (g.includes("sergent") || g.includes("commander") || g.includes("lieutenant")) {
         document.getElementById('form-annonce').style.display = 'block';
     }
+    // Seul le Commander peut recruter
     if (g.includes("commander")) {
         document.getElementById('form-sasp').style.display = 'block';
     }
 }
 
-function initRealtime() {
-    // Unités
+function startMDT() {
+    // Unités en direct
     onSnapshot(query(collection(db, "users"), where("en_service", "==", true)), (snap) => {
         const cont = document.getElementById('list-units');
         cont.innerHTML = "";
         snap.forEach(d => {
             const u = d.data();
-            cont.innerHTML += `<div style="color:#00ff00; padding:5px;">● [${u.matricule}] ${u.prenom} ${u.nom}</div>`;
+            cont.innerHTML += `<div style="color:#00ff00; padding:8px; border-bottom:1px solid #111;">● [${u.matricule}] ${u.prenom} ${u.nom}</div>`;
         });
     });
 
-    // Annonces
+    // Annonces en direct
     onSnapshot(query(collection(db, "annonces"), orderBy("date", "desc")), (snap) => {
         const cont = document.getElementById('list-annonces');
         cont.innerHTML = "";
         snap.forEach(d => {
             const a = d.data();
-            const canDel = currentUser.grade.toLowerCase().includes("sergent") || currentUser.grade.toLowerCase().includes("commander");
-            cont.innerHTML += `<div class="card" style="border-left:4px solid var(--accent)">
-                <h4>${a.titre}</h4><p>${a.texte}</p><small>Par ${a.auteur}</small><br>
-                ${canDel ? `<button class="btn-del" onclick="window.delDoc('annonces','${d.id}')">SUPPRIMER</button>` : ''}
-            </div>`;
+            const g = currentUser.grade.toLowerCase();
+            const canDel = g.includes("sergent") || g.includes("commander") || g.includes("lieutenant");
+            cont.innerHTML += `
+                <div class="card" style="border-left:4px solid var(--accent)">
+                    <h4>${a.titre}</h4><p>${a.texte}</p><small>Par ${a.auteur}</small><br>
+                    ${canDel ? `<button class="btn-delete" onclick="window.delDoc('annonces','${d.id}')">SUPPRIMER</button>` : ''}
+                </div>`;
         });
     });
 
-    // Civils
+    // Civils en direct
     onSnapshot(collection(db, "civils"), (snap) => {
         const cont = document.getElementById('list-citoyens');
         cont.innerHTML = "";
         snap.forEach(d => {
             const c = d.data();
-            cont.innerHTML += `<div class="card"><strong>${c.prenom} ${c.nom}</strong><br>Tel: ${c.tel} | Né: ${c.naissance}</div>`;
+            cont.innerHTML += `<div class="card"><strong>${c.prenom} ${c.nom}</strong><br>Tel: ${c.tel}<br>Né le: ${c.naissance}</div>`;
         });
     });
 
-    // Effectif
+    // Effectif en direct
     onSnapshot(collection(db, "users"), (snap) => {
         const cont = document.getElementById('list-sasp');
         cont.innerHTML = "";
@@ -100,7 +104,7 @@ function initRealtime() {
     });
 }
 
-// FONCTIONS ACTIONS
+// FONCTIONS D'ACTION
 window.addAnnonce = async () => {
     const t = document.getElementById('ann-titre').value;
     const m = document.getElementById('ann-texte').value;
@@ -112,9 +116,10 @@ window.addCivil = async () => {
     const p = document.getElementById('civ-prenom').value;
     const n = document.getElementById('civ-nom').value;
     const t = document.getElementById('civ-tel').value;
-    const d = document.getElementById('civ-naiss').value;
-    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, tel: t, naissance: d });
-    alert("Civil enregistré !");
+    const na = document.getElementById('civ-naiss').value;
+    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, tel: t, naissance: na });
+    alert("Civil enregistré avec succès !");
+    document.getElementById('civ-prenom').value = ""; document.getElementById('civ-nom').value = "";
 };
 
 window.addNewAgent = async () => {
@@ -123,7 +128,7 @@ window.addNewAgent = async () => {
     const m = document.getElementById('new-mat').value;
     const g = document.getElementById('new-grade').value;
     await addDoc(collection(db, "users"), { prenom: p, nom: n, matricule: m, grade: g, mdp: "1234", statut: "valide", en_service: false });
-    alert("Agent ajouté !");
+    alert("Agent intégré à la base !");
 };
 
 window.toggleService = async () => {
@@ -135,10 +140,10 @@ window.toggleService = async () => {
 };
 
 window.delDoc = async (coll, id) => {
-    if(confirm("Supprimer ?")) await deleteDoc(doc(db, coll, id));
+    if(confirm("Confirmer la suppression ?")) await deleteDoc(doc(db, coll, id));
 };
 
-// NAV
+// NAVIGATION
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
