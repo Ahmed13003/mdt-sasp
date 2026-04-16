@@ -114,3 +114,14 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
+<section id="page-map" class="mdt-page" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>Carte Tactique & Points Illégaux</h1>
+        <p style="color:var(--accent); font-size:0.8rem;">Cliquez sur la carte pour signaler un point</p>
+    </div>
+    
+    <div class="card" style="padding:10px;">
+        <div id="tactical-map" class="map-wrapper" onclick="handleMapClick(event)">
+            </div>
+    </div>
+</section>
