@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SASP MDT - Online RP</title>
+    <title>SASP MDT - SYSTÈME OFFICIEL</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,25 +13,19 @@
         <div class="auth-box">
             <img src="https://i.imgur.com/wasey9r.png" alt="SASP Logo" class="login-logo">
             <div class="brand">SASP SERVICES</div>
-            
             <div id="auth-fields">
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
                 <button onclick="checkLogin()">CONNEXION</button>
-                <div style="margin-top:20px;">
-                    <span style="color:var(--accent); cursor:pointer; font-size:0.8rem; text-decoration:underline;" onclick="toggleRegister(true)">DEMANDER UN ACCÈS</span>
-                </div>
+                <div style="margin-top:20px;"><span class="link-btn" onclick="toggleRegister(true)">DEMANDER UN ACCÈS</span></div>
             </div>
-
             <div id="register-fields" style="display:none;">
                 <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
                 <button onclick="handleRegister()">ENVOYER LA DEMANDE</button>
-                <div style="margin-top:20px;">
-                    <span style="color:gray; cursor:pointer; font-size:0.8rem;" onclick="toggleRegister(false)">RETOUR</span>
-                </div>
+                <div style="margin-top:20px;"><span class="link-btn" onclick="toggleRegister(false)">RETOUR</span></div>
             </div>
         </div>
     </div>
@@ -42,47 +36,41 @@
                 <img src="https://i.imgur.com/wasey9r.png" alt="Logo" class="sidebar-logo">
                 <div class="brand">SASP MDT</div>
             </div>
+            <div id="panic-btn" onclick="triggerPanic()">PANIC BUTTON</div>
             <div id="service-btn" class="service-status" onclick="toggleService()">HORS SERVICE</div>
+            
             <nav>
                 <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-th-large"></i> Dashboard</div>
-                <div class="nav-item" data-page="page-annonces"><i class="fas fa-bullhorn"></i> Annonces</div>
                 <div class="nav-item" data-page="page-citoyens"><i class="fas fa-address-book"></i> Fichier Civil</div>
-                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif SASP</div>
+                <div class="nav-item" data-page="page-bolo"><i class="fas fa-car-burst"></i> BOLO / Recherches</div>
+                <div class="nav-item" data-page="page-penal"><i class="fas fa-gavel"></i> Code Pénal</div>
+                <div class="nav-item" data-page="page-annonces"><i class="fas fa-bullhorn"></i> Annonces</div>
+                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif</div>
             </nav>
             <div class="officer-card">
-                <p id="display-name" style="font-weight: bold; color:white;"></p>
-                <p id="display-rank" style="color: #00d2ff; font-size: 0.8rem; text-transform: uppercase;"></p>
+                <p id="display-name" style="font-weight: bold;"></p>
+                <p id="display-rank"></p>
             </div>
         </div>
 
         <main class="content">
             <section id="page-dashboard" class="mdt-page">
                 <h1>Tableau de Bord</h1>
+                <div id="panic-alert"></div>
                 <div class="grid">
                     <div class="card">
                         <h3><i class="fas fa-tower-broadcast"></i> Unités en service</h3>
                         <div id="list-units"></div>
                     </div>
-                    <div class="card watermarked">
-                        <img src="https://i.imgur.com/wasey9r.png" class="bg-watermark">
-                        <h3>Informations Système</h3>
-                        <p>Bienvenue Officier. Le système est opérationnel.</p>
+                    <div class="card">
+                        <h3><i class="fas fa-triangle-exclamation"></i> Alertes BOLO Actives</h3>
+                        <div id="dash-bolo"></div>
                     </div>
                 </div>
             </section>
 
-            <section id="page-annonces" class="mdt-page" style="display:none;">
-                <h1>Annonces</h1>
-                <div class="card" id="form-annonce" style="display:none;">
-                    <input type="text" id="ann-titre" placeholder="Titre">
-                    <textarea id="ann-texte" placeholder="Message..." rows="3"></textarea>
-                    <button onclick="addAnnonce()">PUBLIER</button>
-                </div>
-                <div id="list-annonces"></div>
-            </section>
-
             <section id="page-citoyens" class="mdt-page" style="display:none;">
-                <h1>Fichier Civil</h1>
+                <h1>Fichier Civil & Casier</h1>
                 <div class="card">
                     <h3>Enregistrer un Civil</h3>
                     <div class="grid-inputs">
@@ -94,6 +82,44 @@
                     <button onclick="addCivil()">ENREGISTRER</button>
                 </div>
                 <div id="list-citoyens" class="grid"></div>
+            </section>
+
+            <section id="page-bolo" class="mdt-page" style="display:none;">
+                <h1>Avis de Recherche (BOLO)</h1>
+                <div class="card" id="form-bolo">
+                    <input type="text" id="bolo-sujet" placeholder="Suspect ou Véhicule (Plaque)">
+                    <textarea id="bolo-raison" placeholder="Raison de la recherche..." rows="2"></textarea>
+                    <button onclick="addBolo()">LANCER L'AVIS DE RECHERCHE</button>
+                </div>
+                <div id="list-bolo"></div>
+            </section>
+
+            <section id="page-penal" class="mdt-page" style="display:none;">
+                <h1>Code Pénal San Andreas</h1>
+                <div class="card">
+                    <div class="penal-category">
+                        <h4>Infractions Routières</h4>
+                        <p>🚦 Excès de vitesse : 500$</p>
+                        <p>🚦 Conduite sans permis : 1500$</p>
+                        <p>🚦 Alcoolémie au volant : 2000$ + Retrait</p>
+                    </div>
+                    <div class="penal-category">
+                        <h4>Délits Graves</h4>
+                        <p>🔫 Possession d'arme illégale : 5000$ + 15 min</p>
+                        <p>💰 Braquage de supérette : 7500$ + 20 min</p>
+                        <p>🚓 Refus d'obtempérer : 3000$ + 10 min</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-annonces" class="mdt-page" style="display:none;">
+                <h1>Annonces officielles</h1>
+                <div class="card" id="form-annonce" style="display:none;">
+                    <input type="text" id="ann-titre" placeholder="Titre">
+                    <textarea id="ann-texte" placeholder="Message..." rows="3"></textarea>
+                    <button onclick="addAnnonce()">PUBLIER</button>
+                </div>
+                <div id="list-annonces"></div>
             </section>
 
             <section id="page-effectifs" class="mdt-page" style="display:none;">
