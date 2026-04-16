@@ -63,16 +63,9 @@ body {
 
 /* PANIC BUTTON */
 #panic-btn { 
-    background: var(--panic); 
-    color: white; 
-    padding: 15px; 
-    margin: 5px 20px; 
-    text-align: center; 
-    font-weight: bold; 
-    cursor: pointer; 
-    border-radius: 8px; 
-    border: 2px solid white;
-    animation: pulse-red 1s infinite;
+    background: var(--panic); color: white; padding: 15px; margin: 5px 20px; 
+    text-align: center; font-weight: bold; cursor: pointer; border-radius: 8px; 
+    border: 2px solid white; animation: pulse-red 1s infinite;
 }
 
 @keyframes pulse-red {
@@ -101,53 +94,49 @@ h1 { font-size: 2.5rem; margin-bottom: 30px; border-bottom: 2px solid var(--acce
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 25px; }
 .card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; }
 
-iframe { width: 100%; height: 75vh; border: none; }
-input, textarea { background: rgba(0,0,0,0.6); border: 1px solid var(--accent); color: white; padding: 15px; width: 100%; margin-bottom: 10px; border-radius: 5px; }
-button { background: var(--accent); color: black; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
-
-/* MAP */
-.map-container { width: 100%; height: 70vh; background: url('https://i.imgur.com/83pZ6o9.jpg') no-repeat center / contain; border: 2px solid var(--accent); border-radius: 10px; }
-
-#login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.auth-box { background: var(--card); border: 2px solid var(--accent); padding: 50px; width: 450px; text-align: center; border-radius: 15px; }
-/* CARTE INTERACTIVE */
+/* CARTE TACTIQUE */
 .map-wrapper {
     position: relative;
     width: 100%;
     height: 75vh;
-    background: url('https://i.imgur.com/83pZ6o9.jpg') no-repeat center / contain;
+    background: #111 url('https://i.imgur.com/83pZ6o9.jpg') no-repeat center / contain;
     border: 3px solid var(--accent);
     border-radius: 10px;
-    cursor: crosshair; /* Curseur spécial pour indiquer qu'on peut cliquer */
+    cursor: crosshair;
     overflow: hidden;
 }
 
-/* LE MARQUEUR (POINT) */
 .map-marker {
     position: absolute;
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     background: red;
     border: 2px solid white;
     border-radius: 50%;
-    transform: translate(-50%, -50%); /* Centrage parfait du clic */
+    transform: translate(-50%, -50%);
+    z-index: 10;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(255,0,0,0.8);
+    box-shadow: 0 0 10px red;
 }
 
 .marker-label {
     position: absolute;
-    bottom: 20px;
+    bottom: 22px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.7rem;
+    background: black;
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
     white-space: nowrap;
-    display: none;
     border: 1px solid var(--accent);
+    pointer-events: none;
 }
 
-.map-marker:hover .marker-label { display: block; }
+/* AUTH */
+#login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.auth-box { background: var(--card); border: 2px solid var(--accent); padding: 50px; width: 450px; text-align: center; border-radius: 15px; }
+input, textarea { background: rgba(0,0,0,0.6); border: 1px solid var(--accent); color: white; padding: 15px; width: 100%; margin-bottom: 10px; border-radius: 5px; }
+button { background: var(--accent); color: black; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; width: 100%; }
+iframe { width: 100%; height: 75vh; border: none; }
