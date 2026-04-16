@@ -89,3 +89,59 @@ function setupPermissions() {
         document.getElementById('form-annonce').style.display = 'block';
     }
 }
+
+
+// --- FONCTION POUR VOIR LES UNITÉS (DASHBOARD) ---
+async function loadUnits() {
+    const q = query(collection(db, "users"), where("en_service", "==", true));
+    const snap = await getDocs(q);
+    const container = document.getElementById('list-units');
+    if(!container) return;
+    
+    container.innerHTML = "";
+    if(snap.empty) container.innerHTML = "<p style='color:gray;'>Aucune unité en patrouille.</p>";
+    
+    snap.forEach(d => {
+        const u = d.data();
+        container.innerHTML += `
+            <div style="padding:10px; border-bottom:1px solid #222; display:flex; justify-content:space-between;">
+                <span><strong>[${u.matricule}]</strong> ${u.prenom} ${u.nom}</span>
+                <span style="color:#00ff00; font-size:0.8rem;">● EN PATROUILLE</span>
+            </div>`;
+    });
+}
+
+// --- AJOUTER UN AGENT (EFFECTIF) ---
+window.addNewAgent = async () => {
+    const prenom = document.getElementById('new-prenom').value;
+    const nom = document.getElementById('new-nom').value;
+    const mat = document.getElementById('new-mat').value;
+    const grade = document.getElementById('new-grade').value;
+
+    if(!prenom || !nom || !mat) return alert("Remplissez tout !");
+
+    await addDoc(collection(db, "users"), {
+        prenom, nom, matricule: mat, grade,
+        mdp: "1234", statut: "valide", en_service: false
+    });
+    alert("Agent ajouté !");
+    loadSASP();
+};
+
+// --- GESTION DES PERMISSIONS (SERGENT / COMMANDER) ---
+function setupPermissions() {
+    const g = currentUser.grade.toLowerCase();
+    
+    // Tout le monde voit les unités, mais seuls les gradés postent
+    if (g.includes("sergent") || g.includes("commander") || g.includes("lieutenant")) {
+        document.getElementById('form-annonce').style.display = 'block';
+        document.getElementById('form-wanted').style.display = 'block';
+    }
+    
+    // Seul l'État-Major (Commander) ajoute des agents
+    if (g.includes("commander")) {
+        document.getElementById('form-sasp').style.display = 'block';
+    }
+}
+
+// N'oublie pas d'appeler loadUnits() dans ta fonction loadAll()
