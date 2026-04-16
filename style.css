@@ -91,3 +91,46 @@ button { background: var(--accent); color: black; border: none; padding: 15px; f
 
 #login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
 .auth-box { background: var(--card); border: 2px solid var(--accent); padding: 50px; width: 450px; text-align: center; border-radius: 15px; }
+
+/* PANIC BUTTON STYLE */
+#panic-btn { 
+    background: #ff0000; 
+    color: white; 
+    padding: 20px; 
+    margin: 10px 20px; 
+    text-align: center; 
+    font-weight: bold; 
+    cursor: pointer; 
+    border-radius: 8px; 
+    border: 3px solid white;
+    animation: pulse-red 1s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+.panic-active-banner {
+    background: red;
+    color: white;
+    padding: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    animation: blink 0.5s infinite;
+}
+
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+/* CARTE PATROUILLE */
+.map-container {
+    width: 100%;
+    height: 75vh;
+    background: url('https://i.imgur.com/83pZ6o9.jpg') no-repeat center / contain;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+}
