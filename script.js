@@ -14,31 +14,73 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
+// --- AUTHENTIFICATION (FIXÉ) ---
+
+window.toggleRegister = (s) => {
+    document.getElementById('auth-fields').style.display = s ? 'none' : 'block';
+    document.getElementById('register-fields').style.display = s ? 'block' : 'none';
+};
+
+window.handleRegister = async () => {
+    const p = document.getElementById('reg-prenom').value.trim();
+    const n = document.getElementById('reg-nom').value.trim();
+    const m = document.getElementById('reg-mat').value.trim();
+    const ps = document.getElementById('reg-pass').value.trim();
+
+    if(!p || !n || !m || !ps) return alert("Veuillez remplir tous les champs !");
+
+    try {
+        await addDoc(collection(db, "users"), {
+            prenom: p,
+            nom: n,
+            matricule: m,
+            mdp: ps,
+            grade: "Officier I", // Grade par défaut
+            en_service: false,
+            statut: "en_attente",
+            panic: false
+        });
+        alert("Demande de création de compte envoyée au haut commandement !");
+        window.toggleRegister(false);
+    } catch (e) { alert("Erreur lors de l'inscription."); }
+};
+
 window.checkLogin = async () => {
     const mat = document.getElementById('officer-id').value.trim();
     const pass = document.getElementById('access-code').value.trim();
-    const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
-    const snap = await getDocs(q);
     
-    if (!snap.empty) {
-        currentUser = snap.docs[0].data();
-        currentUser.id = snap.docs[0].id;
+    if(!mat || !pass) return alert("Champs vides !");
+
+    try {
+        const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
+        const snap = await getDocs(q);
         
-        if (currentUser.statut === "en_attente") return alert("Compte non validé.");
-        
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('mdt-app').style.display = 'flex';
-        
-        // CORRECTION ICI : Affiche "COMMANDER : Miller" au lieu de "OFFICIER : Miller"
-        document.getElementById('display-name').innerText = `${currentUser.grade.toUpperCase()} : ${currentUser.nom.toUpperCase()}`;
-        
-        const g = currentUser.grade.toLowerCase();
-        if(g.includes("commander") || g.includes("sergent") || g.includes("commandant") || g.includes("chef")) {
-            if(document.getElementById('form-sasp')) document.getElementById('form-sasp').style.display = 'block';
+        if (!snap.empty) {
+            const userDoc = snap.docs[0];
+            currentUser = userDoc.data();
+            currentUser.id = userDoc.id;
+
+            if (currentUser.statut === "en_attente") return alert("Votre compte n'a pas encore été validé par un Commandant.");
+
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('mdt-app').style.display = 'flex';
+            
+            // Affichage du grade réel (COMMANDER, etc)
+            document.getElementById('display-name').innerText = `${currentUser.grade.toUpperCase()} : ${currentUser.nom.toUpperCase()}`;
+            
+            // Affichage du menu recrutement si gradé
+            const g = currentUser.grade.toLowerCase();
+            if(g.includes("commander") || g.includes("sergent") || g.includes("commandant") || g.includes("chef")) {
+                if(document.getElementById('form-sasp')) document.getElementById('form-sasp').style.display = 'block';
+            }
+            initRealtime();
+        } else {
+            alert("Matricule ou Mot de passe incorrect.");
         }
-        initRealtime();
-    } else alert("Identifiants incorrects.");
+    } catch (e) { console.error(e); alert("Erreur de connexion."); }
 };
+
+// --- SERVICES & PANIC ---
 
 window.toggleService = async () => {
     const btn = document.getElementById('service-btn');
@@ -54,33 +96,84 @@ window.triggerPanic = async () => {
     currentUser.panic = newState;
 };
 
-// ... (Le reste des fonctions addReport, addBolo, addCivil reste identique)
+// --- CARTE INTERACTIVE ---
+
+window.handleMapClick = async (e) => {
+    const map = document.getElementById('tactical-map');
+    const rect = map.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    const label = prompt("Nom du point (ex: Drogue, Armes, QG) :");
+    if(label) {
+        await addDoc(collection(db, "markers"), { x, y, label, auteur: currentUser.nom });
+    }
+};
+
+window.deleteMarker = async (id) => {
+    if(confirm("Supprimer ce point ?")) await deleteDoc(doc(db, "markers", id));
+};
+
+// --- AUTRES FONCTIONS ---
+
+window.addReport = async () => {
+    const t = document.getElementById('rep-titre').value;
+    const c = document.getElementById('rep-contenu').value;
+    if(t && c) {
+        await addDoc(collection(db, "reports"), { titre: t, contenu: c, auteur: currentUser.nom, date: serverTimestamp() });
+        document.getElementById('rep-titre').value = ""; document.getElementById('rep-contenu').value = "";
+        alert("Rapport envoyé.");
+    }
+};
+
+window.addBolo = async () => {
+    const s = document.getElementById('bolo-sujet').value;
+    const r = document.getElementById('bolo-raison').value;
+    if(s && r) await addDoc(collection(db, "bolo"), { sujet: s, raison: r, auteur: currentUser.nom, date: serverTimestamp() });
+    alert("BOLO lancé !");
+};
+
+window.addCivil = async () => {
+    const p = document.getElementById('civ-prenom').value;
+    const n = document.getElementById('civ-nom').value;
+    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, casier: [] });
+    alert("Civil enregistré.");
+};
+
+// --- TEMPS RÉEL ---
 
 function initRealtime() {
     onSnapshot(collection(db, "users"), (snap) => {
         const units = document.getElementById('list-units');
         const pZone = document.getElementById('panic-zone');
         units.innerHTML = ""; pZone.innerHTML = "";
-        
         snap.forEach(d => {
             const u = d.data();
-            if(u.en_service) {
-                units.innerHTML += `<div style="color:${u.panic ? 'red' : '#00ff00'}; font-weight:bold; margin-bottom:10px;">● [${u.matricule}] ${u.grade} ${u.nom} ${u.panic ? ' (URGENCE !)' : ''}</div>`;
-            }
-            // CORRECTION ICI : Le bandeau de panique affiche maintenant le vrai grade (ex: COMMANDER Miller)
-            if(u.panic) {
-                pZone.innerHTML += `<div class="panic-banner">🚨 ALERTE PANIQUE : ${u.grade.toUpperCase()} ${u.nom.toUpperCase()} EN DANGER ! 🚨</div>`;
-            }
+            if(u.en_service) units.innerHTML += `<div style="color:${u.panic ? 'red' : '#00ff00'}; font-weight:bold; margin-bottom:10px;">● [${u.matricule}] ${u.grade} ${u.nom}</div>`;
+            if(u.panic) pZone.innerHTML += `<div class="panic-banner">🚨 ALERTE PANIQUE : ${u.grade.toUpperCase()} ${u.nom.toUpperCase()} EN DANGER ! 🚨</div>`;
         });
     });
 
-    // On garde les snapshots pour les rapports, bolo et civils
+    onSnapshot(collection(db, "markers"), (snap) => {
+        const map = document.getElementById('tactical-map');
+        map.querySelectorAll('.map-marker').forEach(m => m.remove());
+        snap.forEach(d => {
+            const m = d.data();
+            const marker = document.createElement('div');
+            marker.className = 'map-marker';
+            marker.style.left = `${m.x}%`; marker.style.top = `${m.y}%`;
+            marker.oncontextmenu = (e) => { e.preventDefault(); deleteMarker(d.id); };
+            marker.innerHTML = `<div class="marker-label">${m.label.toUpperCase()}</div>`;
+            map.appendChild(marker);
+        });
+    });
+
     onSnapshot(query(collection(db, "reports"), orderBy("date", "desc")), (snap) => {
         const list = document.getElementById('list-reports');
         list.innerHTML = "";
         snap.forEach(d => {
             const r = d.data();
-            list.innerHTML += `<div class="card"><strong>${r.titre}</strong><p style="margin-top:10px;">${r.contenu}</p><small>Par: ${r.auteur}</small></div>`;
+            list.innerHTML += `<div class="card"><strong>${r.titre}</strong><p>${r.contenu}</p><small>Par: ${r.auteur}</small></div>`;
         });
     });
 
@@ -114,61 +207,3 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.getElementById(item.getAttribute('data-page')).style.display = 'block';
     });
 });
-// --- GESTION DE LA CARTE INTERACTIVE ---
-
-window.handleMapClick = async (e) => {
-    const map = document.getElementById('tactical-map');
-    const rect = map.getBoundingClientRect();
-    
-    // Calcul des coordonnées en pourcentage pour que ça marche sur tous les écrans
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    const label = prompt("Nom du point (ex: Vente Weed, Blanchisseur, QG Ballas) :");
-    
-    if(label) {
-        await addDoc(collection(db, "markers"), {
-            x: x,
-            y: y,
-            label: label,
-            auteur: currentUser.nom,
-            date: serverTimestamp()
-        });
-    }
-};
-
-window.deleteMarker = async (id) => {
-    if(confirm("Supprimer ce point de la carte ?")) {
-        await deleteDoc(doc(db, "markers", id));
-    }
-};
-
-// --- DANS TA FONCTION initRealtime(), AJOUTE CE SNAPSHOT ---
-
-function initRealtime() {
-    // ... (garde tes snapshots existants pour users, bolo, etc.) ...
-
-    // AJOUTER CECI POUR LES MARQUEURS :
-    onSnapshot(collection(db, "markers"), (snap) => {
-        const map = document.getElementById('tactical-map');
-        // On garde l'image de fond mais on vide les anciens marqueurs
-        map.querySelectorAll('.map-marker').forEach(m => m.remove());
-
-        snap.forEach(d => {
-            const m = d.data();
-            const marker = document.createElement('div');
-            marker.className = 'map-marker';
-            marker.style.left = `${m.x}%`;
-            marker.style.top = `${m.y}%`;
-            
-            // Si on fait un clic droit, on peut supprimer le point
-            marker.oncontextmenu = (e) => {
-                e.preventDefault();
-                deleteMarker(d.id);
-            };
-
-            marker.innerHTML = `<div class="marker-label">${m.label.toUpperCase()}</div>`;
-            map.appendChild(marker);
-        });
-    });
-}
