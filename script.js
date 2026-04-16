@@ -114,3 +114,61 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.getElementById(item.getAttribute('data-page')).style.display = 'block';
     });
 });
+// --- GESTION DE LA CARTE INTERACTIVE ---
+
+window.handleMapClick = async (e) => {
+    const map = document.getElementById('tactical-map');
+    const rect = map.getBoundingClientRect();
+    
+    // Calcul des coordonnées en pourcentage pour que ça marche sur tous les écrans
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    const label = prompt("Nom du point (ex: Vente Weed, Blanchisseur, QG Ballas) :");
+    
+    if(label) {
+        await addDoc(collection(db, "markers"), {
+            x: x,
+            y: y,
+            label: label,
+            auteur: currentUser.nom,
+            date: serverTimestamp()
+        });
+    }
+};
+
+window.deleteMarker = async (id) => {
+    if(confirm("Supprimer ce point de la carte ?")) {
+        await deleteDoc(doc(db, "markers", id));
+    }
+};
+
+// --- DANS TA FONCTION initRealtime(), AJOUTE CE SNAPSHOT ---
+
+function initRealtime() {
+    // ... (garde tes snapshots existants pour users, bolo, etc.) ...
+
+    // AJOUTER CECI POUR LES MARQUEURS :
+    onSnapshot(collection(db, "markers"), (snap) => {
+        const map = document.getElementById('tactical-map');
+        // On garde l'image de fond mais on vide les anciens marqueurs
+        map.querySelectorAll('.map-marker').forEach(m => m.remove());
+
+        snap.forEach(d => {
+            const m = d.data();
+            const marker = document.createElement('div');
+            marker.className = 'map-marker';
+            marker.style.left = `${m.x}%`;
+            marker.style.top = `${m.y}%`;
+            
+            // Si on fait un clic droit, on peut supprimer le point
+            marker.oncontextmenu = (e) => {
+                e.preventDefault();
+                deleteMarker(d.id);
+            };
+
+            marker.innerHTML = `<div class="marker-label">${m.label.toUpperCase()}</div>`;
+            map.appendChild(marker);
+        });
+    });
+}
