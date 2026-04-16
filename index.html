@@ -48,8 +48,8 @@
                 <div class="nav-item" data-page="page-effectifs"><i class="fas fa-user-shield"></i> Effectif</div>
             </nav>
             <div class="officer-card">
-                <p id="display-name" style="font-weight: bold;"></p>
-                <p id="display-rank"></p>
+                <p id="display-name" style="font-weight: bold; color:white;"></p>
+                <p id="display-rank" style="color:var(--accent); font-size:0.8rem;"></p>
             </div>
         </div>
 
@@ -70,7 +70,7 @@
             </section>
 
             <section id="page-citoyens" class="mdt-page" style="display:none;">
-                <h1>Fichier Civil & Casier</h1>
+                <h1>Fichier Civil</h1>
                 <div class="card">
                     <h3>Enregistrer un Civil</h3>
                     <div class="grid-inputs">
@@ -84,48 +84,24 @@
                 <div id="list-citoyens" class="grid"></div>
             </section>
 
-            <section id="page-bolo" class="mdt-page" style="display:none;">
-                <h1>Avis de Recherche (BOLO)</h1>
-                <div class="card" id="form-bolo">
-                    <input type="text" id="bolo-sujet" placeholder="Suspect ou Véhicule (Plaque)">
-                    <textarea id="bolo-raison" placeholder="Raison de la recherche..." rows="2"></textarea>
-                    <button onclick="addBolo()">LANCER L'AVIS DE RECHERCHE</button>
-                </div>
-                <div id="list-bolo"></div>
-            </section>
-
-            <section id="page-penal" class="mdt-page" style="display:none;">
-                <h1>Code Pénal San Andreas</h1>
-                <div class="card">
-                    <div class="penal-category">
-                        <h4>Infractions Routières</h4>
-                        <p>🚦 Excès de vitesse : 500$</p>
-                        <p>🚦 Conduite sans permis : 1500$</p>
-                        <p>🚦 Alcoolémie au volant : 2000$ + Retrait</p>
-                    </div>
-                    <div class="penal-category">
-                        <h4>Délits Graves</h4>
-                        <p>🔫 Possession d'arme illégale : 5000$ + 15 min</p>
-                        <p>💰 Braquage de supérette : 7500$ + 20 min</p>
-                        <p>🚓 Refus d'obtempérer : 3000$ + 10 min</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="page-annonces" class="mdt-page" style="display:none;">
-                <h1>Annonces officielles</h1>
-                <div class="card" id="form-annonce" style="display:none;">
-                    <input type="text" id="ann-titre" placeholder="Titre">
-                    <textarea id="ann-texte" placeholder="Message..." rows="3"></textarea>
-                    <button onclick="addAnnonce()">PUBLIER</button>
-                </div>
-                <div id="list-annonces"></div>
-            </section>
-
             <section id="page-effectifs" class="mdt-page" style="display:none;">
-                <h1>Effectif Global</h1>
+                <h1>Gestion de l'Effectif</h1>
+                <div class="card" id="form-sasp" style="display:none;">
+                    <h3>Recruter un Agent</h3>
+                    <div class="grid-inputs">
+                        <input type="text" id="new-prenom" placeholder="Prénom">
+                        <input type="text" id="new-nom" placeholder="Nom">
+                        <input type="text" id="new-mat" placeholder="Matricule">
+                        <input type="text" id="new-grade" placeholder="Grade">
+                    </div>
+                    <button onclick="addNewAgent()">AJOUTER L'AGENT</button>
+                </div>
                 <div id="list-sasp" class="grid"></div>
             </section>
+
+            <section id="page-bolo" class="mdt-page" style="display:none;"><h1>BOLO</h1><div class="card"><input type="text" id="bolo-sujet" placeholder="Sujet"><textarea id="bolo-raison" placeholder="Raison"></textarea><button onclick="addBolo()">LANCER</button></div><div id="list-bolo"></div></section>
+            <section id="page-penal" class="mdt-page" style="display:none;"><h1>Code Pénal</h1><div class="card"><h4>Lois en vigueur</h4><p>Excès de vitesse : 500$</p><p>Braquage : 5000$</p></div></section>
+            <section id="page-annonces" class="mdt-page" style="display:none;"><h1>Annonces</h1><div class="card" id="form-annonce" style="display:none;"><input type="text" id="ann-titre" placeholder="Titre"><textarea id="ann-texte" placeholder="Message"></textarea><button onclick="addAnnonce()">PUBLIER</button></div><div id="list-annonces"></div></section>
         </main>
     </div>
     <script type="module" src="script.js"></script>
