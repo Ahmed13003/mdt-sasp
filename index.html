@@ -100,7 +100,13 @@
             </section>
 
             <section id="page-bolo" class="mdt-page" style="display:none;"><h1>BOLO</h1><div class="card"><input type="text" id="bolo-sujet" placeholder="Sujet"><textarea id="bolo-raison" placeholder="Raison"></textarea><button onclick="addBolo()">LANCER</button></div><div id="list-bolo"></div></section>
-            <section id="page-penal" class="mdt-page" style="display:none;"><h1>Code Pénal</h1><div class="card"><h4>Lois en vigueur</h4><p>Excès de vitesse : 500$</p><p>Braquage : 5000$</p></div></section>
+<section id="page-penal" class="mdt-page" style="display:none;">
+    <h1>Code Pénal SASP (Live)</h1>
+    <div class="card" style="height: 80vh; padding: 0;">
+        <iframe src="https://docs.google.com/spreadsheets/d/1y8_DfJ5J2IZmJUKPhc2HxbjzdUaMcxbdg1fYA-dF8EI/preview" 
+                style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+</section>
             <section id="page-annonces" class="mdt-page" style="display:none;"><h1>Annonces</h1><div class="card" id="form-annonce" style="display:none;"><input type="text" id="ann-titre" placeholder="Titre"><textarea id="ann-texte" placeholder="Message"></textarea><button onclick="addAnnonce()">PUBLIER</button></div><div id="list-annonces"></div></section>
         </main>
     </div>
