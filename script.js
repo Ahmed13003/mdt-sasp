@@ -13,8 +13,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
-
-window.checkLogin = async () => {
+// Remplace l'ancienne ligne par celle-là :
+document.getElementById('display-name').innerText = `${currentUser.grade} : ${currentUser.nom}`;
     const mat = document.getElementById('officer-id').value.trim();
     const pass = document.getElementById('access-code').value.trim();
     const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
