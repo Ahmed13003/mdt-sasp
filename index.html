@@ -2,8 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>MDT SASP</title>
+    <title>SASP MDT - CENTRAL</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="wallpaper"></div>
@@ -14,14 +15,17 @@
             <div id="auth-fields">
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
-                <button onclick="checkLogin()">CONNEXION</button>
+                <button class="btn-glow" onclick="checkLogin()">CONNEXION</button>
                 <p class="link" onclick="toggleRegister(true)">Créer un compte</p>
             </div>
             <div id="register-fields" style="display:none;">
+                <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
+                <input type="text" id="reg-grad" placeholder="GRADE">
+                <input type="text" id="reg-tel" placeholder="NUMÉRO DE TÉLÉPHONE">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
-                <button onclick="handleRegister()">ENREGISTRER</button>
+                <button class="btn-glow" onclick="handleRegister()">DEMANDER L'ACCÈS</button>
                 <p class="link" onclick="toggleRegister(false)">Retour</p>
             </div>
         </div>
@@ -31,11 +35,17 @@
         <div class="sidebar">
             <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
             
-            <div id="panic-btn" onclick="triggerPanic()">PANIC BUTTON</div>
+            <div class="status-buttons">
+                <div id="service-btn" class="status-btn off" onclick="toggleService()">HORS SERVICE</div>
+                <div id="panic-btn" class="status-btn panic" onclick="triggerPanic()">PANIC BUTTON</div>
+            </div>
             
             <nav>
-                <div class="nav-item active" data-page="page-dashboard">DASHBOARD</div>
-                <div class="nav-item" data-page="page-citoyens">FICHIER CIVIL</div>
+                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-desktop"></i> DISPATCH</div>
+                <div class="nav-item" data-page="page-penal"><i class="fas fa-gavel"></i> CODE PÉNAL</div>
+                <div class="nav-item" data-page="page-bolo"><i class="fas fa-id-badge"></i> BOLO</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL</div>
+                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-clipboard-list"></i> EFFECTIFS</div>
             </nav>
             <div id="display-name"></div>
         </div>
@@ -44,18 +54,48 @@
             <div id="panic-zone"></div>
 
             <section id="page-dashboard" class="mdt-page">
-                <h1 class="page-title">Unités en service</h1>
-                <div id="list-units" class="card"></div>
+                <h1 class="page-title">Dispatch Opérationnel</h1>
+                <div class="grid-dispatch">
+                    <div class="card">
+                        <h3><i class="fas fa-broadcast-tower"></i> UNITÉS EN PATROUILLE</h3>
+                        <div id="list-units" class="unit-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-penal" class="mdt-page" style="display:none;">
+                <h1 class="page-title">Code Pénal SASP</h1>
+                <div class="iframe-container">
+                    <iframe src="https://docs.google.com/spreadsheets/d/1y8_DfJ5J2IZmJUKPhc2HxbjzdUaMcxbdg1fYA-dF8EI/preview?gid=1895731737"></iframe>
+                </div>
+            </section>
+
+            <section id="page-bolo" class="mdt-page" style="display:none;">
+                <h1 class="page-title">Avis de Recherche (BOLO)</h1>
+                <div class="card">
+                    <input type="text" id="bolo-sujet" placeholder="Nom ou Véhicule recherché">
+                    <textarea id="bolo-raison" placeholder="Raison de la recherche..."></textarea>
+                    <button class="btn-glow" onclick="addBolo()">LANCER L'AVIS</button>
+                </div>
+                <div id="list-bolo" class="grid-list"></div>
             </section>
 
             <section id="page-citoyens" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Fichier Civil</h1>
+                <h1 class="page-title">Gestion des Citoyens</h1>
                 <div class="card">
                     <input type="text" id="civ-prenom" placeholder="Prénom">
                     <input type="text" id="civ-nom" placeholder="Nom">
-                    <button onclick="addCivil()">CRÉER LA FICHE</button>
+                    <button class="btn-glow" onclick="addCivil()">CRÉER LA FICHE</button>
                 </div>
                 <div id="list-citoyens" class="grid-list"></div>
+            </section>
+
+            <section id="page-effectifs" class="mdt-page" style="display:none;">
+                <h1 class="page-title">Annuaire des Effectifs</h1>
+                <div class="card info-box">
+                    <p>En créant un compte, vous êtes automatiquement ajouté à l'annuaire.</p>
+                </div>
+                <div id="list-effectifs" class="grid-list"></div>
             </section>
         </main>
     </div>
