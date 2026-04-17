@@ -102,3 +102,37 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
+<div class="sidebar">
+            <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
+            
+            <div class="status-buttons">
+                <div id="service-btn" class="status-btn off" onclick="toggleService()">HORS SERVICE</div>
+                <div id="panic-btn" class="status-btn panic" onclick="triggerPanic()">PANIC BUTTON</div>
+            </div>
+            
+            <nav>
+                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-desktop"></i> DISPATCH</div>
+                <div class="nav-item" data-page="page-penal"><i class="fas fa-gavel"></i> CODE PÉNAL</div>
+                <div class="nav-item" data-page="page-bolo"><i class="fas fa-id-badge"></i> BOLO</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL</div>
+                <div class="nav-item" data-page="page-effectifs"><i class="fas fa-clipboard-list"></i> EFFECTIFS</div>
+            </nav>
+
+            <div id="user-badge">
+                <i class="fas fa-user-shield"></i>
+                <div class="user-info">
+                    <span id="display-grade">GRADE INCONNU</span>
+                    <span id="display-name">OFFICIER</span>
+                </div>
+            </div>
+        </div>
+
+        <main class="content">
+            <div id="panic-zone"></div>
+
+            <section id="page-penal" class="mdt-page" style="display:none;">
+                <h1 class="page-title">CONSULTATION CODE PÉNAL SASP</h1>
+                <div class="iframe-container">
+                    <iframe src="https://docs.google.com/spreadsheets/d/1y8_DfJ5J2IZmJUKPhc2HxbjzdUaMcxbdg1fYA-dF8EI/preview?gid=1895731737"></iframe>
+                </div>
+            </section>
