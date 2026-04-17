@@ -102,3 +102,14 @@ input, textarea {
 }
 .grid-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
 .card { background: var(--card-bg); border: 1px solid rgba(0,210,255,0.2); padding: 20px; border-radius: 8px; }
+/* Ajustement pour les inputs dans les cartes de dispatch */
+.grid-list input {
+    margin: 0; /* Enlever les marges automatiques qui décalent tout */
+    font-size: 12px;
+}
+
+#list-units {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
