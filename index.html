@@ -11,7 +11,7 @@
 
     <div id="login-overlay">
         <div class="auth-box">
-            <img src="https://i.imgur.com/wasey9r.png" width="100">
+            <img src="https://i.imgur.com/wasey9r.png" class="auth-logo">
             <div id="auth-fields">
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
@@ -22,18 +22,19 @@
                 <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
                 <input type="text" id="reg-grad" placeholder="GRADE">
-                <input type="text" id="reg-tel" placeholder="NUMÉRO DE TÉLÉPHONE">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
-                <button class="btn-glow" onclick="handleRegister()">DEMANDER L'ACCÈS</button>
+                <button class="btn-glow" onclick="handleRegister()">ENREGISTRER</button>
                 <p class="link" onclick="toggleRegister(false)">Retour</p>
             </div>
         </div>
     </div>
 
-    <div id="mdt-app">
+    <div id="mdt-app" style="display:none;">
         <div class="sidebar">
-            <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
+            <div class="logo-area">
+                <img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo">
+            </div>
             
             <div class="status-buttons">
                 <div id="service-btn" class="status-btn off" onclick="toggleService()">HORS SERVICE</div>
@@ -41,7 +42,7 @@
             </div>
             
             <nav>
-                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-desktop"></i> DISPATCH</div>
+                <div class="nav-item active" data-page="page-dispatch"><i class="fas fa-desktop"></i> DISPATCH</div>
                 <div class="nav-item" data-page="page-penal"><i class="fas fa-gavel"></i> CODE PÉNAL</div>
                 <div class="nav-item" data-page="page-bolo"><i class="fas fa-id-badge"></i> BOLO</div>
                 <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL</div>
@@ -49,12 +50,10 @@
             </nav>
 
             <div class="user-badge">
-                <div class="badge-icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
+                <i class="fas fa-user-shield"></i>
                 <div class="user-info">
-                    <span class="grade-label" id="display-grade">GRADE</span>
-                    <span class="name-label" id="display-name">OFFICIER</span>
+                    <span id="display-grade" class="badge-grade">GRADE</span>
+                    <span id="display-name" class="badge-name">OFFICIER</span>
                 </div>
             </div>
         </div>
@@ -62,23 +61,23 @@
         <main class="content">
             <div id="panic-zone"></div>
 
+            <section id="page-dispatch" class="mdt-page">
+                <h1 class="page-title">Unités en service</h1>
+                <div id="list-units" class="grid-list"></div>
+            </section>
+
             <section id="page-penal" class="mdt-page" style="display:none;">
-                <h1 class="page-title">CODE PÉNAL GÉNÉRAL</h1>
+                <h1 class="page-title">Code Pénal SASP</h1>
                 <div class="iframe-container">
                     <iframe src="https://docs.google.com/spreadsheets/d/1y8_DfJ5J2IZmJUKPhc2HxbjzdUaMcxbdg1fYA-dF8EI/preview?gid=1895731737"></iframe>
                 </div>
             </section>
 
-            <section id="page-dashboard" class="mdt-page">
-                <h1 class="page-title">Unités en service</h1>
-                <div id="list-units" class="card"></div>
-            </section>
-
             <section id="page-bolo" class="mdt-page" style="display:none;">
                 <h1 class="page-title">Avis de Recherche (BOLO)</h1>
                 <div class="card">
-                    <input type="text" id="bolo-sujet" placeholder="Nom ou Véhicule recherché">
-                    <textarea id="bolo-raison" placeholder="Raison de la recherche..."></textarea>
+                    <input type="text" id="bolo-sujet" placeholder="Sujet recherché">
+                    <textarea id="bolo-raison" placeholder="Raison..."></textarea>
                     <button class="btn-glow" onclick="addBolo()">LANCER L'AVIS</button>
                 </div>
                 <div id="list-bolo" class="grid-list"></div>
@@ -89,7 +88,7 @@
                 <div class="card">
                     <input type="text" id="civ-prenom" placeholder="Prénom">
                     <input type="text" id="civ-nom" placeholder="Nom">
-                    <button class="btn-glow" onclick="addCivil()">CRÉER FICHE</button>
+                    <button class="btn-glow" onclick="addCivil()">CRÉER LA FICHE</button>
                 </div>
                 <div id="list-citoyens" class="grid-list"></div>
             </section>
@@ -100,6 +99,7 @@
             </section>
         </main>
     </div>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
