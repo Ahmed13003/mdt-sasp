@@ -134,3 +134,25 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.getElementById(item.getAttribute('data-page')).style.display = 'block';
     });
 });
+window.checkLogin = async () => {
+    const mat = document.getElementById('officer-id').value;
+    const pass = document.getElementById('access-code').value;
+    const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
+    const snap = await getDocs(q);
+    
+    if (!snap.empty) {
+        currentUser = snap.docs[0].data(); 
+        currentUser.id = snap.docs[0].id;
+        
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('mdt-app').style.display = 'flex';
+        
+        // Mise à jour du badge avec le nom et le grade
+        document.getElementById('display-name').innerText = `${currentUser.prenom} ${currentUser.nom}`;
+        document.getElementById('display-grade').innerText = currentUser.grade;
+        
+        initRealtime();
+    } else {
+        alert("Identifiants incorrects.");
+    }
+};
