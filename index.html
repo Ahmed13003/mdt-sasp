@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SASP MDT - COMMANDER</title>
+    <title>SASP MDT - SYSTÈME AVANCÉ</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -16,14 +16,14 @@
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
                 <button onclick="checkLogin()">CONNEXION</button>
-                <p onclick="toggleRegister(true)" style="color:var(--accent); cursor:pointer; margin-top:15px; text-decoration:underline;">CRÉER UN COMPTE</p>
+                <p onclick="toggleRegister(true)" style="color:var(--accent); cursor:pointer; margin-top:20px; text-decoration:underline;">CRÉER UN COMPTE</p>
             </div>
             <div id="register-fields" style="display:none;">
                 <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
-                <button onclick="handleRegister()">ENVOYER DEMANDE</button>
+                <button onclick="handleRegister()">ENVOYER LA DEMANDE</button>
                 <p onclick="toggleRegister(false)" style="color:gray; cursor:pointer; margin-top:15px;">RETOUR</p>
             </div>
         </div>
@@ -32,49 +32,90 @@
     <div id="mdt-app">
         <div class="sidebar">
             <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
+            
             <div id="service-btn" class="service-status" onclick="toggleService()">HORS SERVICE</div>
+            
+            <div class="radio-codes">
+                <div class="radio-btn" id="code-10-8" onclick="setRadio('10-8')">10-8</div>
+                <div class="radio-btn" id="code-10-6" onclick="setRadio('10-6')">10-6</div>
+                <div class="radio-btn" id="code-10-7" onclick="setRadio('10-7')">10-7</div>
+                <div class="radio-btn" id="code-10-10" onclick="setRadio('10-10')">10-10</div>
+            </div>
+
             <div id="panic-btn" onclick="triggerPanic()">PANIC BUTTON</div>
+            
             <nav>
                 <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-home"></i> DASHBOARD</div>
-                <div class="nav-item" data-page="page-map"><i class="fas fa-map"></i> CARTE TACTIQUE</div>
-                <div class="nav-item" data-page="page-reports"><i class="fas fa-file"></i> RAPPORTS</div>
-                <div class="nav-item" data-page="page-bolo"><i class="fas fa-search"></i> BOLO</div>
-                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> CIVILS</div>
+                <div class="nav-item" data-page="page-map"><i class="fas fa-map-marked-alt"></i> CARTE TACTIQUE</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL / CASIER</div>
+                <div class="nav-item" data-page="page-vehicules"><i class="fas fa-car"></i> BASE VÉHICULE</div>
+                <div class="nav-item" data-page="page-calculateur"><i class="fas fa-calculator"></i> CALCULATEUR</div>
+                <div class="nav-item" data-page="page-reports"><i class="fas fa-file-alt"></i> RAPPORTS</div>
             </nav>
             <div id="display-name" style="margin-top:auto; padding:20px; text-align:center; color:var(--accent); font-weight:bold; border-top:1px solid #333;"></div>
         </div>
 
         <main class="content">
             <div id="panic-zone"></div>
+
             <section id="page-dashboard" class="mdt-page">
                 <h1>Tableau de Bord</h1>
-                <div id="list-units" style="margin-top:20px;"></div>
-                <div id="dash-bolo" style="margin-top:20px;"></div>
+                <div class="grid">
+                    <div id="list-units" class="card"><h3>UNITÉS EN SERVICE</h3></div>
+                    <div id="dash-bolo" class="card"><h3>AVIS DE RECHERCHE</h3></div>
+                </div>
             </section>
+
+            <section id="page-calculateur" class="mdt-page" style="display:none;">
+                <h1>Calculateur de Sanctions</h1>
+                <div class="grid">
+                    <div class="card" style="grid-column: span 2;">
+                        <h3>INFRACTIONS</h3>
+                        <div class="crime-list" id="crime-menu"></div>
+                    </div>
+                    <div class="card">
+                        <h3>TOTAL</h3>
+                        <div id="fine-total" class="total-box">AMENDE : 0$</div>
+                        <div id="jail-total" class="total-box" style="background: #444; color: white;">CELLULE : 0 MIN</div>
+                        <button onclick="resetCalc()" style="margin-top:20px; background:red;">RÉINITIALISER</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-vehicules" class="mdt-page" style="display:none;">
+                <h1>Base de Données Véhicules</h1>
+                <div class="card">
+                    <input type="text" id="veh-plaque" placeholder="PLAQUE">
+                    <input type="text" id="veh-modele" placeholder="MODÈLE">
+                    <input type="text" id="veh-proprio" placeholder="PROPRIÉTAIRE">
+                    <button onclick="addVehicule()">ENREGISTRER</button>
+                </div>
+                <div id="list-vehicules" class="grid"></div>
+            </section>
+
+            <section id="page-citoyens" class="mdt-page" style="display:none;">
+                <h1>Fichier Civil & Casier</h1>
+                <div class="card">
+                    <input type="text" id="civ-prenom" placeholder="Prénom">
+                    <input type="text" id="civ-nom" placeholder="Nom">
+                    <button onclick="addCivil()">CRÉER LA FICHE</button>
+                </div>
+                <div id="list-citoyens" class="grid"></div>
+            </section>
+
             <section id="page-map" class="mdt-page" style="display:none;">
-                <h1>Carte Tactique</h1>
+                <h1>Carte Tactique Satellite</h1>
                 <div id="tactical-map" class="map-wrapper" onclick="handleMapClick(event)"></div>
             </section>
+
             <section id="page-reports" class="mdt-page" style="display:none;">
-                <h1>Rapports</h1>
-                <input type="text" id="rep-titre" placeholder="Titre">
-                <textarea id="rep-contenu" rows="4" placeholder="Détails"></textarea>
-                <button onclick="addReport()">PUBLIER</button>
+                <h1>Rapports d'Intervention</h1>
+                <div class="card">
+                    <input type="text" id="rep-titre" placeholder="Objet">
+                    <textarea id="rep-contenu" rows="4" placeholder="Détails..."></textarea>
+                    <button onclick="addReport()">PUBLIER</button>
+                </div>
                 <div id="list-reports" style="margin-top:20px;"></div>
-            </section>
-            <section id="page-bolo" class="mdt-page" style="display:none;">
-                <h1>Avis de Recherche</h1>
-                <input type="text" id="bolo-sujet" placeholder="Cible">
-                <textarea id="bolo-raison" placeholder="Raison"></textarea>
-                <button onclick="addBolo()">LANCER</button>
-                <div id="list-bolo" style="margin-top:20px;"></div>
-            </section>
-            <section id="page-citoyens" class="mdt-page" style="display:none;">
-                <h1>Fichier Civil</h1>
-                <input type="text" id="civ-prenom" placeholder="Prénom">
-                <input type="text" id="civ-nom" placeholder="Nom">
-                <button onclick="addCivil()">AJOUTER</button>
-                <div id="list-citoyens" style="margin-top:20px;"></div>
             </section>
         </main>
     </div>
