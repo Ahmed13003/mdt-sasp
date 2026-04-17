@@ -163,3 +163,30 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.getElementById(item.getAttribute('data-page')).style.display = 'block';
     });
 });
+// --- AJOUTE CETTE FONCTION DANS TON SCRIPT.JS ---
+window.updatePatrouille = async (userId, val) => {
+    const docRef = doc(db, "users", userId);
+    await updateDoc(docRef, { patrouille: val.toUpperCase() });
+};
+
+// --- MODIFIE LA PARTIE "initRealtime" POUR LE DISPATCH ---
+// Dans la boucle snap.forEach(d => { ... }) de users :
+
+if (u.en_service) {
+    listUnits.innerHTML += `
+        <div class="card" style="border-left: 4px solid #2ecc71; display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(0,0,0,0.3);">
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-weight: bold;">[${u.matricule}] ${u.grade} ${u.nom}</span>
+                <small style="color: #aaa;">Statut: En service</small>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-size: 10px; color: var(--accent);">PATROUILLE :</label>
+                <input type="text" 
+                    value="${u.patrouille || ''}" 
+                    placeholder="Ex: L-10" 
+                    onchange="updatePatrouille('${d.id}', this.value)"
+                    style="width: 80px; padding: 5px; margin: 0; background: #000; border: 1px solid var(--accent); color: white; text-align: center; font-weight: bold;"
+                >
+            </div>
+        </div>`;
+}
