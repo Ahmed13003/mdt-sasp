@@ -1,47 +1,29 @@
-:root { --accent: #00d2ff; --danger: #ff0000; --bg: #010a14; --card-bg: rgba(2, 15, 28, 0.95); }
+:root { --accent: #00d2ff; --danger: #ff0000; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; height: 100vh; overflow: hidden; }
+body { font-family: sans-serif; background: #010a14; color: white; display: flex; height: 100vh; overflow: hidden; }
 
 .wallpaper { position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1,10,20,0.9), rgba(1,10,20,0.9)), url('https://i.imgur.com/wasey9r.png') no-repeat center / 35%; }
 
 /* AUTH */
 #login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.auth-box { background: var(--card-bg); border: 2px solid var(--accent); padding: 40px; border-radius: 15px; text-align: center; width: 350px; }
-.auth-box input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid var(--accent); color: white; border-radius: 5px; }
-.auth-link { color: var(--accent); cursor: pointer; margin-top: 15px; text-decoration: underline; font-size: 0.9rem; }
+.auth-box { background: rgba(2,15,28,0.95); padding: 40px; border: 2px solid var(--accent); border-radius: 10px; text-align: center; width: 320px; }
+input { width: 100%; padding: 10px; margin: 10px 0; background: #000; border: 1px solid var(--accent); color: white; }
+button { width: 100%; padding: 10px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; color: black; }
+.link { color: var(--accent); cursor: pointer; margin-top: 15px; font-size: 0.8rem; text-decoration: underline; }
 
-/* LAYOUT PRINCIPAL */
+/* APP */
 #mdt-app { display: none; width: 100%; height: 100%; display: flex; }
-.sidebar { width: 300px; background: rgba(0,0,0,0.95); border-right: 2px solid var(--accent); display: flex; flex-direction: column; }
-.logo-area { padding: 25px; text-align: center; border-bottom: 1px solid rgba(0,210,255,0.2); }
-.sidebar-logo { width: 120px; }
+.sidebar { width: 280px; background: rgba(0,0,0,0.95); border-right: 2px solid var(--accent); display: flex; flex-direction: column; }
+.logo-area { padding: 20px; text-align: center; }
+.sidebar-logo { width: 100px; }
 
-/* PANIC BUTTON */
-#panic-btn { background: var(--danger); color: white; padding: 15px; margin: 20px; text-align: center; font-weight: bold; cursor: pointer; border-radius: 5px; border: 2px solid #fff; animation: flash 0.8s infinite; }
-@keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+#panic-btn { background: var(--danger); color: white; padding: 15px; margin: 20px; text-align: center; font-weight: bold; cursor: pointer; border: 2px solid #fff; animation: flash 0.8s infinite; }
+@keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-/* NAV */
-.nav-item { padding: 15px 30px; cursor: pointer; font-weight: bold; color: #888; transition: 0.3s; }
-.nav-item.active { color: var(--accent); background: rgba(0,210,255,0.1); border-left: 5px solid var(--accent); }
+.nav-item { padding: 15px 25px; cursor: pointer; color: #888; font-weight: bold; }
+.nav-item.active { color: var(--accent); background: rgba(0,210,255,0.1); border-left: 4px solid var(--accent); }
 
-/* CONTENT */
-.content { flex: 1; padding: 40px; overflow-y: auto; }
-.page-title { margin-bottom: 30px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px; }
-.card { background: var(--card-bg); border: 1px solid rgba(0,210,255,0.2); padding: 20px; border-radius: 10px; }
-
-/* CALCULATEUR RANGÉ */
-.calc-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-.crime-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-.crime-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 5px; cursor: pointer; text-align: center; font-size: 0.8rem; border: 1px solid transparent; }
-.crime-item.selected { background: var(--accent); color: #000; font-weight: bold; }
-.total-box { padding: 20px; background: var(--accent); color: #000; font-size: 1.4rem; font-weight: bold; text-align: center; border-radius: 8px; margin-bottom: 10px; }
-.total-box.jail { background: #333; color: #fff; }
-
-/* PENAL GRID */
-.penal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-.penal-category h3 { color: var(--accent); margin-bottom: 15px; text-decoration: underline; }
-.penal-category p { margin-bottom: 8px; font-size: 0.9rem; }
-
-/* BOUTONS DANGER */
-.btn-danger { background: var(--danger); color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.content { flex: 1; padding: 30px; overflow-y: auto; }
+.card { background: rgba(2,15,28,0.9); border: 1px solid rgba(0,210,255,0.2); padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+.page-title { margin-bottom: 20px; font-size: 1.5rem; }
