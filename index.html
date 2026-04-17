@@ -2,9 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SASP MDT - SYSTÈME CENTRAL</title>
+    <title>MDT SASP</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="wallpaper"></div>
@@ -12,21 +11,18 @@
     <div id="login-overlay">
         <div class="auth-box">
             <img src="https://i.imgur.com/wasey9r.png" width="100">
-            
             <div id="auth-fields">
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
                 <button onclick="checkLogin()">CONNEXION</button>
-                <p class="auth-link" onclick="toggleRegister(true)">Créer un compte</p>
+                <p class="link" onclick="toggleRegister(true)">Créer un compte</p>
             </div>
-
             <div id="register-fields" style="display:none;">
-                <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
                 <button onclick="handleRegister()">ENREGISTRER</button>
-                <p class="auth-link" onclick="toggleRegister(false)">Retour</p>
+                <p class="link" onclick="toggleRegister(false)">Retour</p>
             </div>
         </div>
     </div>
@@ -39,8 +35,6 @@
             
             <nav>
                 <div class="nav-item active" data-page="page-dashboard">DASHBOARD</div>
-                <div class="nav-item" data-page="page-penal">CODE PÉNAL</div>
-                <div class="nav-item" data-page="page-calculateur">CALCULATEUR</div>
                 <div class="nav-item" data-page="page-citoyens">FICHIER CIVIL</div>
             </nav>
             <div id="display-name"></div>
@@ -54,53 +48,14 @@
                 <div id="list-units" class="card"></div>
             </section>
 
-            <section id="page-penal" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Code Pénal Officiel</h1>
-                <div class="penal-grid">
-                    <div class="card penal-category">
-                        <h3>🚓 ROUTIER</h3>
-                        <p>Délit de fuite : <b>2500$ | 15 min</b></p>
-                        <p>Refus d'obtempérer : <b>3500$ | 15 min</b></p>
-                        <p>Conduite sans permis : <b>500$ | 0 min</b></p>
-                    </div>
-                    <div class="card penal-category">
-                        <h3>⚖️ CRIMES</h3>
-                        <p>Outrage : <b>750$ | 5 min</b></p>
-                        <p>Menace sur agent : <b>1500$ | 10 min</b></p>
-                        <p>Corruption : <b>5000$ | 20 min</b></p>
-                    </div>
-                    <div class="card penal-category">
-                        <h3>🩸 VIOLENCES</h3>
-                        <p>Meurtre : <b>15000$ | 60 min</b></p>
-                        <p>Tentative d'homicide agent : <b>25000$ | 90 min</b></p>
-                        <p>Braquage Banque : <b>15000$ | 45 min</b></p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="page-calculateur" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Calculateur de Peines</h1>
-                <div class="calc-container">
-                    <div class="card crime-selection">
-                        <h3>SÉLECTIONNER LES ARTICLES</h3>
-                        <div class="crime-list" id="crime-menu"></div>
-                    </div>
-                    <div class="card total-panel">
-                        <div id="fine-total" class="total-box">AMENDE : 0$</div>
-                        <div id="jail-total" class="total-box jail">CELLULE : 0 MIN</div>
-                        <button onclick="resetCalc()" class="btn-danger">RÉINITIALISER</button>
-                    </div>
-                </div>
-            </section>
-
             <section id="page-citoyens" class="mdt-page" style="display:none;">
                 <h1 class="page-title">Fichier Civil</h1>
-                <div class="card form-card">
+                <div class="card">
                     <input type="text" id="civ-prenom" placeholder="Prénom">
                     <input type="text" id="civ-nom" placeholder="Nom">
                     <button onclick="addCivil()">CRÉER LA FICHE</button>
                 </div>
-                <div id="list-citoyens" class="citoyens-grid"></div>
+                <div id="list-citoyens" class="grid-list"></div>
             </section>
         </main>
     </div>
