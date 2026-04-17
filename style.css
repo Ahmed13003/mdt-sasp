@@ -1,91 +1,37 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+:root { --accent: #00d2ff; --danger: #ff0000; }
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAvBTVTYSuFjHjMiZYGiFFN4yviglcXDB4",
-    authDomain: "mdt-onlinerp.firebaseapp.com",
-    projectId: "mdt-onlinerp",
-    storageBucket: "mdt-onlinerp.firebasestorage.app",
-    appId: "1:102349354657:web:7085e7db36adec678d22e0"
-};
+body { margin: 0; font-family: sans-serif; background: #010a14; color: white; display: flex; height: 100vh; }
+.wallpaper { position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1,10,20,0.9), rgba(1,10,20,0.9)), url('https://i.imgur.com/wasey9r.png') no-repeat center / 35%; }
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-let currentUser = null;
+#login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 100; }
+.auth-box { background: rgba(2,15,28,0.95); padding: 40px; border: 2px solid var(--accent); border-radius: 10px; text-align: center; }
+input { display: block; width: 250px; padding: 10px; margin: 10px 0; background: #000; border: 1px solid var(--accent); color: white; }
+button { width: 100%; padding: 10px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; }
 
-const crimeData = [
-    { n: "Outrage à agent", a: 750, j: 5 },
-    { n: "Délit de fuite", a: 2500, j: 15 },
-    { n: "Refus d'obtempérer", a: 3500, j: 15 },
-    { n: "Braquage Supérette", a: 5000, j: 20 },
-    { n: "Braquage Banque", a: 15000, j: 45 },
-    { n: "Meurtre", a: 15000, j: 60 }
-];
+#mdt-app { display: none; width: 100%; }
+.sidebar { width: 300px; background: rgba(0,0,0,0.9); border-right: 2px solid var(--accent); display: flex; flex-direction: column; }
+.logo-area { padding: 20px; text-align: center; }
+.sidebar-logo { width: 100px; }
 
-let selectedCrimes = [];
-
-window.checkLogin = async () => {
-    const mat = document.getElementById('officer-id').value;
-    const pass = document.getElementById('access-code').value;
-    const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-        currentUser = snap.docs[0].data(); currentUser.id = snap.docs[0].id;
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('mdt-app').style.display = 'flex';
-        initRealtime();
-    }
-};
-
-window.triggerPanic = async () => {
-    await updateDoc(doc(db, "users", currentUser.id), { panic: !currentUser.panic });
-    currentUser.panic = !currentUser.panic;
-};
-
-function initRealtime() {
-    const menu = document.getElementById('crime-menu');
-    menu.innerHTML = "";
-    crimeData.forEach((c, i) => {
-        menu.innerHTML += `<div class="crime-item" id="crime-${i}" onclick="toggleCrime(${i})">${c.n}</div>`;
-    });
-
-    onSnapshot(collection(db, "users"), (snap) => {
-        const pZone = document.getElementById('panic-zone');
-        pZone.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            if(u.panic) pZone.innerHTML += `<div style="background:red; color:white; padding:15px; text-align:center; font-weight:bold; margin-bottom:10px; border:2px solid white;">🚨 ALERTE PANIC : ${u.nom} EN DANGER 🚨</div>`;
-        });
-    });
+/* PANIC BUTTON FLASH */
+#panic-btn { 
+    background: var(--danger); color: white; padding: 15px; margin: 10px 20px; 
+    text-align: center; font-weight: bold; cursor: pointer; border-radius: 5px; 
+    border: 2px solid #fff; animation: flash 0.8s infinite;
 }
+@keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-window.toggleCrime = (i) => {
-    const el = document.getElementById(`crime-${i}`);
-    if(selectedCrimes.includes(i)) {
-        selectedCrimes = selectedCrimes.filter(x => x !== i);
-        el.classList.remove('selected');
-    } else {
-        selectedCrimes.push(i);
-        el.classList.add('selected');
-    }
-    let f = 0, j = 0;
-    selectedCrimes.forEach(idx => { f += crimeData[idx].a; j += crimeData[idx].j; });
-    document.getElementById('fine-total').innerText = `AMENDE : ${f}$`;
-    document.getElementById('jail-total').innerText = `CELLULE : ${j} MIN`;
-};
+.nav-item { padding: 15px 25px; cursor: pointer; font-weight: bold; color: #888; }
+.nav-item.active { color: var(--accent); background: rgba(0,210,255,0.1); border-left: 4px solid var(--accent); }
 
-window.resetCalc = () => {
-    selectedCrimes = [];
-    document.querySelectorAll('.crime-item').forEach(el => el.classList.remove('selected'));
-    document.getElementById('fine-total').innerText = "AMENDE : 0$";
-    document.getElementById('jail-total').innerText = "CELLULE : 0 MIN";
-};
+.content { flex: 1; padding: 40px; overflow-y: auto; }
+.card { background: rgba(2,15,28,0.9); border: 1px solid var(--border); padding: 20px; border-radius: 5px; }
 
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-        document.querySelectorAll('.mdt-page').forEach(p => p.style.display = 'none');
-        document.getElementById(item.getAttribute('data-page')).style.display = 'block';
-    });
-});
+/* CALCULATEUR */
+.grid-calc { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.crime-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.crime-item { background: #111; padding: 10px; border: 1px solid #333; cursor: pointer; font-size: 0.8rem; text-align: center; }
+.crime-item.selected { background: var(--accent); color: black; font-weight: bold; }
+.total-box { padding: 20px; background: var(--accent); color: black; font-size: 1.5rem; font-weight: bold; text-align: center; border-radius: 5px; margin-bottom: 10px; }
+.total-box.cell { background: #333; color: white; }
+.btn-reset { background: var(--danger); color: white; margin-top: 10px; }
