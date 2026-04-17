@@ -14,7 +14,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
-// AUTH
+// --- AUTHENTIFICATION ---
 window.toggleRegister = (s) => {
     document.getElementById('auth-fields').style.display = s ? 'none' : 'block';
     document.getElementById('register-fields').style.display = s ? 'block' : 'none';
@@ -28,7 +28,7 @@ window.handleRegister = async () => {
     if(p && n && m && ps) {
         await addDoc(collection(db, "users"), { prenom: p, nom: n, matricule: m, mdp: ps, grade: "Officier I", en_service: false, statut: "en_attente", panic: false });
         alert("Demande envoyée !"); window.toggleRegister(false);
-    }
+    } else alert("Remplissez tout !");
 };
 
 window.checkLogin = async () => {
@@ -42,65 +42,16 @@ window.checkLogin = async () => {
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('mdt-app').style.display = 'flex';
         document.getElementById('display-name').innerText = `${currentUser.grade.toUpperCase()} : ${currentUser.nom.toUpperCase()}`;
-        function initRealtime() {
-    // SURVEILLANCE DES AGENTS & PANIC
-    onSnapshot(collection(db, "users"), (snap) => {
-        const units = document.getElementById('list-units');
-        const pZone = document.getElementById('panic-zone');
-        units.innerHTML = ""; 
-        pZone.innerHTML = "";
-        
-        snap.forEach(d => {
-            const u = d.data();
-            // Liste des unités à gauche
-            if(u.en_service) {
-                units.innerHTML += `<div style="color:${u.panic ? 'red' : '#00ff00'}; font-weight:bold; margin-bottom:10px;">● [${u.matricule}] ${u.grade.toUpperCase()} ${u.nom.toUpperCase()}</div>`;
-            }
-            
-            // BANDEAU DE PANIQUE (CORRIGÉ POUR LE GRADE)
-            if(u.panic) {
-                pZone.innerHTML += `
-                    <div class="panic-banner">
-                        🚨 ${u.grade.toUpperCase()} ${u.nom.toUpperCase()} EN DANGER (BOUTON PANIQUE ACTIVÉ) 🚨
-                    </div>`;
-            }
-        });
-    });
+        initRealtime();
+    } else alert("Identifiants incorrects.");
+};
 
-    // SURVEILLANCE DES POINTS SUR LA CARTE
-    onSnapshot(collection(db, "markers"), (snap) => {
-        const map = document.getElementById('tactical-map');
-        // On nettoie les anciens points avant d'afficher les nouveaux
-        map.querySelectorAll('.map-marker').forEach(m => m.remove());
-        
-        snap.forEach(d => {
-            const m = d.data();
-            const el = document.createElement('div');
-            el.className = 'map-marker';
-            el.style.left = m.x + '%';
-            el.style.top = m.y + '%';
-            
-            // Clic droit pour supprimer
-            el.oncontextmenu = (e) => { 
-                e.preventDefault(); 
-                if(confirm("Supprimer ce point tactique ?")) deleteDoc(doc(db, "markers", d.id));
-            };
-            
-            el.innerHTML = `<div class="marker-label">${m.label.toUpperCase()}</div>`;
-            map.appendChild(el);
-        });
-    });
-
-    // Garde le reste de tes snapshots (reports, bolo, civils) ici...
-}
-
-// ACTIONS
+// --- ACTIONS ---
 window.toggleService = async () => {
-    const btn = document.getElementById('service-btn');
-    const isNow = btn.innerText === "HORS SERVICE";
+    const isNow = document.getElementById('service-btn').innerText === "HORS SERVICE";
     await updateDoc(doc(db, "users", currentUser.id), { en_service: isNow });
-    btn.innerText = isNow ? "EN SERVICE" : "HORS SERVICE";
-    btn.className = isNow ? "service-status active" : "service-status";
+    document.getElementById('service-btn').innerText = isNow ? "EN SERVICE" : "HORS SERVICE";
+    document.getElementById('service-btn').className = isNow ? "service-status active" : "service-status";
 };
 
 window.triggerPanic = async () => {
@@ -108,7 +59,6 @@ window.triggerPanic = async () => {
     currentUser.panic = !currentUser.panic;
 };
 
-// CARTE
 window.handleMapClick = async (e) => {
     if(e.target.classList.contains('map-marker')) return;
     const rect = document.getElementById('tactical-map').getBoundingClientRect();
@@ -118,20 +68,10 @@ window.handleMapClick = async (e) => {
     if(label) await addDoc(collection(db, "markers"), { x, y, label, auteur: currentUser.nom });
 };
 
-window.deleteMarker = async (id) => {
-    if(confirm("Supprimer ?")) await deleteDoc(doc(db, "markers", id));
-};
-
 window.addReport = async () => {
     const t = document.getElementById('rep-titre').value;
     const c = document.getElementById('rep-contenu').value;
     if(t && c) await addDoc(collection(db, "reports"), { titre: t, contenu: c, auteur: currentUser.nom, date: serverTimestamp() });
-};
-
-window.addCivil = async () => {
-    const p = document.getElementById('civ-prenom').value;
-    const n = document.getElementById('civ-nom').value;
-    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n });
 };
 
 window.addBolo = async () => {
@@ -140,16 +80,22 @@ window.addBolo = async () => {
     if(s && r) await addDoc(collection(db, "bolo"), { sujet: s, raison: r, auteur: currentUser.nom, date: serverTimestamp() });
 };
 
-// TEMPS RÉEL
+window.addCivil = async () => {
+    const p = document.getElementById('civ-prenom').value;
+    const n = document.getElementById('civ-nom').value;
+    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n });
+};
+
+// --- REALTIME ---
 function initRealtime() {
     onSnapshot(collection(db, "users"), (snap) => {
         const units = document.getElementById('list-units');
         const pZone = document.getElementById('panic-zone');
-        units.innerHTML = ""; pZone.innerHTML = "";
+        units.innerHTML = "<h3>UNITÉS EN SERVICE</h3>"; pZone.innerHTML = "";
         snap.forEach(d => {
             const u = d.data();
-            if(u.en_service) units.innerHTML += `<div style="color:${u.panic ? 'red' : '#00ff00'}; font-weight:bold; margin-bottom:10px;">● [${u.matricule}] ${u.grade} ${u.nom}</div>`;
-            if(u.panic) pZone.innerHTML += `<div class="panic-banner">🚨 ALERTE PANIQUE : ${u.grade.toUpperCase()} ${u.nom.toUpperCase()} EN DANGER ! 🚨</div>`;
+            if(u.en_service) units.innerHTML += `<p style="color:${u.panic?'red':'#00ff00'}">● [${u.matricule}] ${u.grade} ${u.nom}</p>`;
+            if(u.panic) pZone.innerHTML += `<div class="panic-banner">🚨 ${u.grade.toUpperCase()} ${u.nom.toUpperCase()} EN DANGER ! 🚨</div>`;
         });
     });
 
@@ -158,9 +104,9 @@ function initRealtime() {
         map.querySelectorAll('.map-marker').forEach(m => m.remove());
         snap.forEach(d => {
             const m = d.data();
-            const el = document.createElement('div');
-            el.className = 'map-marker'; el.style.left = m.x + '%'; el.style.top = m.y + '%';
-            el.oncontextmenu = (e) => { e.preventDefault(); deleteMarker(d.id); };
+            const el = document.createElement('div'); el.className = 'map-marker';
+            el.style.left = m.x + '%'; el.style.top = m.y + '%';
+            el.oncontextmenu = (e) => { e.preventDefault(); deleteDoc(doc(db, "markers", d.id)); };
             el.innerHTML = `<div class="marker-label">${m.label.toUpperCase()}</div>`;
             map.appendChild(el);
         });
@@ -168,22 +114,17 @@ function initRealtime() {
 
     onSnapshot(query(collection(db, "reports"), orderBy("date", "desc")), (snap) => {
         const list = document.getElementById('list-reports'); list.innerHTML = "";
-        snap.forEach(d => { const r = d.data(); list.innerHTML += `<div class="card"><strong>${r.titre}</strong><p>${r.contenu}</p><small>Par: ${r.auteur}</small></div>`; });
+        snap.forEach(d => { const r = d.data(); list.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:15px; margin-top:10px; border-radius:5px;"><strong>${r.titre}</strong><p>${r.contenu}</p><small>Par: ${r.auteur}</small></div>`; });
     });
 
     onSnapshot(collection(db, "bolo"), (snap) => {
-        const dash = document.getElementById('dash-bolo'); const list = document.getElementById('list-bolo');
-        dash.innerHTML = ""; list.innerHTML = "";
-        snap.forEach(d => { const b = d.data(); const h = `<div class="card" style="border-left:5px solid gold;"><strong>⚠️ ${b.sujet}</strong><p>${b.raison}</p></div>`; dash.innerHTML += h; list.innerHTML += h; });
-    });
-
-    onSnapshot(collection(db, "civils"), (snap) => {
-        const list = document.getElementById('list-citoyens'); list.innerHTML = "";
-        snap.forEach(d => { const c = d.data(); list.innerHTML += `<div class="card"><strong>${c.prenom} ${c.nom}</strong></div>`; });
+        const dash = document.getElementById('dash-bolo');
+        dash.innerHTML = "<h3>AVIS DE RECHERCHE</h3>";
+        snap.forEach(d => { const b = d.data(); dash.innerHTML += `<div style="border-left:4px solid gold; padding-left:10px; margin-top:10px;"><strong>${b.sujet}</strong><br>${b.raison}</div>`; });
     });
 }
 
-// NAV
+// NAVIGATION
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
