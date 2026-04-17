@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SASP MDT - COMMANDER EDITION</title>
+    <title>SASP MDT - COMMANDER</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,114 +11,73 @@
 
     <div id="login-overlay">
         <div class="auth-box">
-            <img src="https://i.imgur.com/wasey9r.png" style="width:120px; margin-bottom:20px;">
+            <img src="https://i.imgur.com/wasey9r.png" style="width:100px; margin-bottom:20px;">
             <div id="auth-fields">
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
                 <button onclick="checkLogin()">CONNEXION</button>
-                <p onclick="toggleRegister(true)" style="color:var(--accent); cursor:pointer; margin-top:20px;">CRÉER UN COMPTE</p>
+                <p onclick="toggleRegister(true)" style="color:var(--accent); cursor:pointer; margin-top:15px; text-decoration:underline;">CRÉER UN COMPTE</p>
             </div>
             <div id="register-fields" style="display:none;">
                 <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
-                <button onclick="handleRegister()">ENVOYER LA DEMANDE</button>
-                <p onclick="toggleRegister(false)" style="color:gray; cursor:pointer; margin-top:20px;">RETOUR</p>
+                <button onclick="handleRegister()">ENVOYER DEMANDE</button>
+                <p onclick="toggleRegister(false)" style="color:gray; cursor:pointer; margin-top:15px;">RETOUR</p>
             </div>
         </div>
     </div>
 
     <div id="mdt-app">
         <div class="sidebar">
-            <div class="logo-area">
-                <img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo">
-                <div style="font-weight:bold; letter-spacing:2px; margin-top:10px;">SASP TERMINAL</div>
-            </div>
-            
+            <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
             <div id="service-btn" class="service-status" onclick="toggleService()">HORS SERVICE</div>
             <div id="panic-btn" onclick="triggerPanic()">PANIC BUTTON</div>
-            
             <nav>
-                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-desktop"></i> DASHBOARD</div>
-                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL</div>
-                <div class="nav-item" data-page="page-reports"><i class="fas fa-file-signature"></i> RAPPORTS</div>
-                <div class="nav-item" data-page="page-map" onclick="setTimeout(refreshMap, 100)"><i class="fas fa-map-marked-alt"></i> CARTE TACTIQUE</div>
-                <div class="nav-item" data-page="page-penal"><i class="fas fa-book"></i> CODE PÉNAL</div>
+                <div class="nav-item active" data-page="page-dashboard"><i class="fas fa-home"></i> DASHBOARD</div>
+                <div class="nav-item" data-page="page-map"><i class="fas fa-map"></i> CARTE TACTIQUE</div>
+                <div class="nav-item" data-page="page-reports"><i class="fas fa-file"></i> RAPPORTS</div>
                 <div class="nav-item" data-page="page-bolo"><i class="fas fa-search"></i> BOLO</div>
+                <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> CIVILS</div>
             </nav>
-
-            <div id="display-name" style="margin-top:auto; padding:25px; font-weight:bold; color:var(--accent); border-top:1px solid #333; text-align:center;"></div>
+            <div id="display-name" style="margin-top:auto; padding:20px; text-align:center; color:var(--accent); font-weight:bold; border-top:1px solid #333;"></div>
         </div>
 
         <main class="content">
             <div id="panic-zone"></div>
-
             <section id="page-dashboard" class="mdt-page">
                 <h1>Tableau de Bord</h1>
-                <div class="grid">
-                    <div class="card"><h3>PATROUILLES EN SERVICE</h3><div id="list-units" style="font-size:1.4rem; margin-top:20px;"></div></div>
-                    <div class="card"><h3>RECHERCHES ACTIVES</h3><div id="dash-bolo"></div></div>
-                </div>
+                <div id="list-units" style="margin-top:20px;"></div>
+                <div id="dash-bolo" style="margin-top:20px;"></div>
             </section>
-
             <section id="page-map" class="mdt-page" style="display:none;">
                 <h1>Carte Tactique</h1>
                 <div id="tactical-map" class="map-wrapper" onclick="handleMapClick(event)"></div>
             </section>
-
             <section id="page-reports" class="mdt-page" style="display:none;">
-                <h1>Rapports d'Intervention</h1>
-                <div class="card" style="margin-bottom:20px;">
-                    <input type="text" id="rep-titre" placeholder="Objet de l'intervention">
-                    <textarea id="rep-contenu" rows="4" placeholder="Résumé des faits..."></textarea>
-                    <button onclick="addReport()">PUBLIER LE RAPPORT</button>
-                </div>
-                <div id="list-reports" class="grid"></div>
+                <h1>Rapports</h1>
+                <input type="text" id="rep-titre" placeholder="Titre">
+                <textarea id="rep-contenu" rows="4" placeholder="Détails"></textarea>
+                <button onclick="addReport()">PUBLIER</button>
+                <div id="list-reports" style="margin-top:20px;"></div>
             </section>
-
+            <section id="page-bolo" class="mdt-page" style="display:none;">
+                <h1>Avis de Recherche</h1>
+                <input type="text" id="bolo-sujet" placeholder="Cible">
+                <textarea id="bolo-raison" placeholder="Raison"></textarea>
+                <button onclick="addBolo()">LANCER</button>
+                <div id="list-bolo" style="margin-top:20px;"></div>
+            </section>
             <section id="page-citoyens" class="mdt-page" style="display:none;">
                 <h1>Fichier Civil</h1>
-                <div class="card" style="margin-bottom:20px;">
-                    <div class="grid" style="grid-template-columns: 1fr 1fr; margin-bottom:10px;">
-                        <input type="text" id="civ-prenom" placeholder="Prénom">
-                        <input type="text" id="civ-nom" placeholder="Nom">
-                    </div>
-                    <button onclick="addCivil()">ENREGISTRER CIVIL</button>
-                </div>
-                <div id="list-citoyens" class="grid"></div>
-            </section>
-
-            <section id="page-penal" class="mdt-page" style="display:none;">
-                <h1>Code Pénal</h1>
-                <div class="card" style="padding:0;"><iframe src="https://docs.google.com/spreadsheets/d/1y8_DfJ5J2IZmJUKPhc2HxbjzdUaMcxbdg1fYA-dF8EI/preview"></iframe></div>
-            </section>
-
-            <section id="page-bolo" class="mdt-page" style="display:none;">
-                <h1>BOLO</h1>
-                <div class="card" style="margin-bottom:20px;">
-                    <input type="text" id="bolo-sujet" placeholder="Cible">
-                    <textarea id="bolo-raison" placeholder="Raison..."></textarea>
-                    <button onclick="addBolo()">LANCER ALERTE</button>
-                </div>
-                <div id="list-bolo" class="grid"></div>
+                <input type="text" id="civ-prenom" placeholder="Prénom">
+                <input type="text" id="civ-nom" placeholder="Nom">
+                <button onclick="addCivil()">AJOUTER</button>
+                <div id="list-citoyens" style="margin-top:20px;"></div>
             </section>
         </main>
     </div>
     <script type="module" src="script.js"></script>
 </body>
 </html>
-<section id="page-map" class="mdt-page" style="display:none;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <h1>CARTE TACTIQUE SATELLITE</h1>
-        <div style="display:flex; gap:10px;">
-            <button onclick="window.open('https://gta-5-map.com', '_blank')" style="background:#444; width:auto; padding:10px 20px;">VOIR CARTE OFFICIELLE</button>
-            <div style="background:rgba(0,210,255,0.1); padding:10px; border-radius:5px; border:1px solid var(--accent); font-size:0.8rem;">
-                <strong>CLIC GAUCHE :</strong> Poser un point | <strong>CLIC DROIT :</strong> Supprimer
-            </div>
-        </div>
-    </div>
-    
-    <div id="tactical-map" class="map-wrapper" onclick="window.handleMapClick(event)">
-        </div>
-</section>
