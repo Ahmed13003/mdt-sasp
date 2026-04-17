@@ -14,21 +14,38 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
-// --- AUTHENTIFICATION ---
+// DONNÉES CALCULATEUR
+const crimeData = [
+    { n: "Excès de vitesse < 20km/h", a: 500, j: 0 },
+    { n: "Grand excès de vitesse", a: 2500, j: 10 },
+    { n: "Conduite sans permis", a: 1500, j: 5 },
+    { n: "Refus d'obtempérer", a: 5000, j: 15 },
+    { n: "Outrage à agent", a: 2000, j: 10 },
+    { n: "Port d'arme illégal (Léger)", a: 7500, j: 20 },
+    { n: "Port d'arme illégal (Lourd)", a: 15000, j: 45 },
+    { n: "Possession de drogue", a: 5000, j: 15 },
+    { n: "Vente de drogue", a: 12000, j: 40 },
+    { n: "Braquage Supérette", a: 20000, j: 60 },
+    { n: "Braquage Banque", a: 50000, j: 120 },
+    { n: "Meurtre", a: 100000, j: 240 }
+];
+let selectedCrimes = [];
+
+// AUTHENTIFICATION
 window.toggleRegister = (s) => {
     document.getElementById('auth-fields').style.display = s ? 'none' : 'block';
     document.getElementById('register-fields').style.display = s ? 'block' : 'none';
 };
 
 window.handleRegister = async () => {
-    const p = document.getElementById('reg-prenom').value;
-    const n = document.getElementById('reg-nom').value;
-    const m = document.getElementById('reg-mat').value;
-    const ps = document.getElementById('reg-pass').value;
+    const p = document.getElementById('reg-prenom').value.trim();
+    const n = document.getElementById('reg-nom').value.trim();
+    const m = document.getElementById('reg-mat').value.trim();
+    const ps = document.getElementById('reg-pass').value.trim();
     if(p && n && m && ps) {
-        await addDoc(collection(db, "users"), { prenom: p, nom: n, matricule: m, mdp: ps, grade: "Officier I", en_service: false, statut: "en_attente", panic: false });
+        await addDoc(collection(db, "users"), { prenom: p, nom: n, matricule: m, mdp: ps, grade: "Officier I", en_service: false, statut: "en_attente", panic: false, radio: "10-8" });
         alert("Demande envoyée !"); window.toggleRegister(false);
-    } else alert("Remplissez tout !");
+    } else alert("Champs vides !");
 };
 
 window.checkLogin = async () => {
@@ -38,15 +55,15 @@ window.checkLogin = async () => {
     const snap = await getDocs(q);
     if (!snap.empty) {
         currentUser = snap.docs[0].data(); currentUser.id = snap.docs[0].id;
-        if (currentUser.statut === "en_attente") return alert("Compte non validé.");
+        if (currentUser.statut === "en_attente") return alert("Compte en attente.");
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('mdt-app').style.display = 'flex';
         document.getElementById('display-name').innerText = `${currentUser.grade.toUpperCase()} : ${currentUser.nom.toUpperCase()}`;
         initRealtime();
-    } else alert("Identifiants incorrects.");
+    } else alert("Échec connexion.");
 };
 
-// --- ACTIONS ---
+// SERVICE & RADIO
 window.toggleService = async () => {
     const isNow = document.getElementById('service-btn').innerText === "HORS SERVICE";
     await updateDoc(doc(db, "users", currentUser.id), { en_service: isNow });
@@ -54,11 +71,74 @@ window.toggleService = async () => {
     document.getElementById('service-btn').className = isNow ? "service-status active" : "service-status";
 };
 
+window.setRadio = async (code) => {
+    document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`code-${code}`).classList.add('active');
+    await updateDoc(doc(db, "users", currentUser.id), { radio: code });
+};
+
 window.triggerPanic = async () => {
     await updateDoc(doc(db, "users", currentUser.id), { panic: !currentUser.panic });
     currentUser.panic = !currentUser.panic;
 };
 
+// CALCULATEUR
+function initCalc() {
+    const menu = document.getElementById('crime-menu');
+    menu.innerHTML = "";
+    crimeData.forEach((c, i) => {
+        menu.innerHTML += `<div class="crime-item" id="crime-${i}" onclick="toggleCrime(${i})">${c.n}</div>`;
+    });
+}
+
+window.toggleCrime = (i) => {
+    const el = document.getElementById(`crime-${i}`);
+    if(selectedCrimes.includes(i)) {
+        selectedCrimes = selectedCrimes.filter(x => x !== i);
+        el.classList.remove('selected');
+    } else {
+        selectedCrimes.push(i);
+        el.classList.add('selected');
+    }
+    let f = 0, j = 0;
+    selectedCrimes.forEach(idx => { f += crimeData[idx].a; j += crimeData[idx].j; });
+    document.getElementById('fine-total').innerText = `AMENDE : ${f}$`;
+    document.getElementById('jail-total').innerText = `CELLULE : ${j} MIN`;
+};
+
+window.resetCalc = () => {
+    selectedCrimes = [];
+    document.querySelectorAll('.crime-item').forEach(el => el.classList.remove('selected'));
+    document.getElementById('fine-total').innerText = "AMENDE : 0$";
+    document.getElementById('jail-total').innerText = "CELLULE : 0 MIN";
+};
+
+// VÉHICULES
+window.addVehicule = async () => {
+    const p = document.getElementById('veh-plaque').value.trim().toUpperCase();
+    const m = document.getElementById('veh-modele').value.trim();
+    const o = document.getElementById('veh-proprio').value.trim();
+    if(p) await addDoc(collection(db, "vehicules"), { plaque: p, modele: m, proprio: o });
+};
+
+// CIVILS & CASIER
+window.addCivil = async () => {
+    const p = document.getElementById('civ-prenom').value.trim();
+    const n = document.getElementById('civ-nom').value.trim();
+    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, casier: [] });
+};
+
+window.addCrimeToCivil = async (id) => {
+    const crime = prompt("Infraction à ajouter :");
+    if(crime) {
+        const snap = await getDocs(query(collection(db, "civils"), where("__name__", "==", id)));
+        let list = snap.docs[0].data().casier || [];
+        list.push(crime);
+        await updateDoc(doc(db, "civils", id), { casier: list });
+    }
+};
+
+// CARTE
 window.handleMapClick = async (e) => {
     if(e.target.classList.contains('map-marker')) return;
     const rect = document.getElementById('tactical-map').getBoundingClientRect();
@@ -68,35 +148,40 @@ window.handleMapClick = async (e) => {
     if(label) await addDoc(collection(db, "markers"), { x, y, label, auteur: currentUser.nom });
 };
 
+// RAPPORTS
 window.addReport = async () => {
     const t = document.getElementById('rep-titre').value;
     const c = document.getElementById('rep-contenu').value;
     if(t && c) await addDoc(collection(db, "reports"), { titre: t, contenu: c, auteur: currentUser.nom, date: serverTimestamp() });
 };
 
-window.addBolo = async () => {
-    const s = document.getElementById('bolo-sujet').value;
-    const r = document.getElementById('bolo-raison').value;
-    if(s && r) await addDoc(collection(db, "bolo"), { sujet: s, raison: r, auteur: currentUser.nom, date: serverTimestamp() });
-};
-
-window.addCivil = async () => {
-    const p = document.getElementById('civ-prenom').value;
-    const n = document.getElementById('civ-nom').value;
-    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n });
-};
-
-// --- REALTIME ---
+// REALTIME
 function initRealtime() {
+    initCalc();
+    
     onSnapshot(collection(db, "users"), (snap) => {
         const units = document.getElementById('list-units');
         const pZone = document.getElementById('panic-zone');
         units.innerHTML = "<h3>UNITÉS EN SERVICE</h3>"; pZone.innerHTML = "";
         snap.forEach(d => {
             const u = d.data();
-            if(u.en_service) units.innerHTML += `<p style="color:${u.panic?'red':'#00ff00'}">● [${u.matricule}] ${u.grade} ${u.nom}</p>`;
+            if(u.en_service) units.innerHTML += `<p style="color:${u.panic?'red':'#00ff00'}; font-weight:bold; margin-top:5px;">● [${u.matricule}] ${u.grade} ${u.nom} - <span style="color:gold">${u.radio||'10-8'}</span></p>`;
             if(u.panic) pZone.innerHTML += `<div class="panic-banner">🚨 ${u.grade.toUpperCase()} ${u.nom.toUpperCase()} EN DANGER ! 🚨</div>`;
         });
+    });
+
+    onSnapshot(collection(db, "civils"), (snap) => {
+        const list = document.getElementById('list-citoyens'); list.innerHTML = "";
+        snap.forEach(d => {
+            const c = d.data();
+            let tags = (c.casier || []).map(t => `<span class="crime-tag">${t}</span>`).join('');
+            list.innerHTML += `<div class="card"><strong>${c.prenom} ${c.nom}</strong><div style="margin:10px 0;">${tags||'Vierge'}</div><button onclick="addCrimeToCivil('${d.id}')" style="font-size:0.7rem;">+ INFRACTION</button></div>`;
+        });
+    });
+
+    onSnapshot(collection(db, "vehicules"), (snap) => {
+        const list = document.getElementById('list-vehicules'); list.innerHTML = "";
+        snap.forEach(d => { const v = d.data(); list.innerHTML += `<div class="card"><strong>${v.plaque}</strong><br><small>${v.modele} (${v.proprio})</small></div>`; });
     });
 
     onSnapshot(collection(db, "markers"), (snap) => {
@@ -114,13 +199,7 @@ function initRealtime() {
 
     onSnapshot(query(collection(db, "reports"), orderBy("date", "desc")), (snap) => {
         const list = document.getElementById('list-reports'); list.innerHTML = "";
-        snap.forEach(d => { const r = d.data(); list.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:15px; margin-top:10px; border-radius:5px;"><strong>${r.titre}</strong><p>${r.contenu}</p><small>Par: ${r.auteur}</small></div>`; });
-    });
-
-    onSnapshot(collection(db, "bolo"), (snap) => {
-        const dash = document.getElementById('dash-bolo');
-        dash.innerHTML = "<h3>AVIS DE RECHERCHE</h3>";
-        snap.forEach(d => { const b = d.data(); dash.innerHTML += `<div style="border-left:4px solid gold; padding-left:10px; margin-top:10px;"><strong>${b.sujet}</strong><br>${b.raison}</div>`; });
+        snap.forEach(d => { const r = d.data(); list.innerHTML += `<div class="card" style="margin-top:10px;"><strong>${r.titre}</strong><p>${r.contenu}</p><small>Par: ${r.auteur}</small></div>`; });
     });
 }
 
