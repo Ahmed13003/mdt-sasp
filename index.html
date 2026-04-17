@@ -2,31 +2,34 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SASP MDT - SYSTÈME CENTRAL</title>
+    <title>MDT SASP</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="wallpaper"></div>
 
     <div id="login-overlay">
-        <div class="auth-box" style="background:var(--card); padding:40px; border:2px solid var(--accent); border-radius:15px; text-align:center; width:400px; margin: 100px auto;">
-            <img src="https://i.imgur.com/wasey9r.png" style="width:100px; margin-bottom:20px;">
-            <input type="text" id="officer-id" placeholder="MATRICULE" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid var(--accent);">
-            <input type="password" id="access-code" placeholder="MOT DE PASSE" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid var(--accent);">
-            <button onclick="checkLogin()" style="width:100%; padding:12px; background:var(--accent); border:none; font-weight:bold; cursor:pointer;">CONNEXION</button>
+        <div class="auth-box">
+            <img src="https://i.imgur.com/wasey9r.png" width="100">
+            <input type="text" id="officer-id" placeholder="MATRICULE">
+            <input type="password" id="access-code" placeholder="MOT DE PASSE">
+            <button onclick="checkLogin()">CONNEXION</button>
         </div>
     </div>
 
     <div id="mdt-app">
         <div class="sidebar">
             <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
+            
             <div id="panic-btn" onclick="triggerPanic()">PANIC BUTTON</div>
+            
             <nav>
                 <div class="nav-item active" data-page="page-dashboard">DASHBOARD</div>
                 <div class="nav-item" data-page="page-penal">CODE PÉNAL</div>
                 <div class="nav-item" data-page="page-calculateur">CALCULATEUR</div>
                 <div class="nav-item" data-page="page-citoyens">FICHIER CIVIL</div>
             </nav>
+            <div id="display-name"></div>
         </div>
 
         <main class="content">
@@ -38,30 +41,28 @@
             </section>
 
             <section id="page-penal" class="mdt-page" style="display:none;">
-                <h1>Code Pénal & Règlement FlashWorld</h1>
+                <h1>Code Pénal SASP</h1>
                 <div class="card penal-text">
-                    <div class="penal-section">
-                        <h3>GÉNÉRAL</h3>
-                        <p><b>INSULTES / RACISME / HARCÈLEMENT :</b> Interdiction stricte.</p>
-                        <p><b>CHEAT / EXPLOIT :</b> Ban définitif.</p>
-                    </div>
-                    <div class="penal-section">
-                        <h3>INFRACTIONS SERVICES</h3>
-                        <p><b>OUTRAGE :</b> 750$ | 5 min.</p>
-                        <p><b>DÉLIT DE FUITE :</b> 2500$ | 15 min.</p>
-                        <p><b>REFUS D'OBTEMPÉRER :</b> 3500$ | 15 min.</p>
-                    </div>
+                    <p><b>Outrage :</b> 750$ | 5 min</p>
+                    <p><b>Délit de fuite :</b> 2500$ | 15 min</p>
+                    <p><b>Refus d'obtempérer :</b> 3500$ | 15 min</p>
+                    <p><b>Braquage Supérette :</b> 5000$ | 20 min</p>
+                    <p><b>Braquage Banque :</b> 15000$ | 45 min</p>
+                    <p><b>Meurtre :</b> 15000$ | 60 min</p>
+                    <p><b>Tentative d'homicide sur agent :</b> 25000$ | 90 min</p>
                 </div>
             </section>
 
             <section id="page-calculateur" class="mdt-page" style="display:none;">
-                <h1>Calculateur Rapide</h1>
-                <div class="grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
-                    <div class="card"><div class="crime-list" id="crime-menu"></div></div>
+                <h1>Calculateur de Sanctions</h1>
+                <div class="grid-calc">
+                    <div class="card">
+                        <div class="crime-list" id="crime-menu"></div>
+                    </div>
                     <div class="card">
                         <div id="fine-total" class="total-box">AMENDE : 0$</div>
-                        <div id="jail-total" class="total-box" style="background:#444; color:white;">CELLULE : 0 MIN</div>
-                        <button onclick="resetCalc()" style="margin-top:20px; background:red; color:white; border:none; padding:10px; width:100%; cursor:pointer;">EFFACER</button>
+                        <div id="jail-total" class="total-box cell">CELLULE : 0 MIN</div>
+                        <button onclick="resetCalc()" class="btn-reset">RESET</button>
                     </div>
                 </div>
             </section>
