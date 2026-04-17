@@ -6,58 +6,99 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; height: 100vh; overflow: hidden; }
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: var(--bg); 
+    color: white; 
+    height: 100vh; 
+    overflow: hidden; 
+}
 
-.wallpaper { position: fixed; inset: 0; z-index: -1; background: linear-gradient(rgba(1,10,20,0.9), rgba(1,10,20,0.9)), url('https://i.imgur.com/wasey9r.png') no-repeat center / 35%; }
+.wallpaper { 
+    position: fixed; 
+    inset: 0; 
+    z-index: -1; 
+    background: linear-gradient(rgba(1,10,20,0.8), rgba(1,10,20,0.8)), 
+                url('https://i.imgur.com/wasey9r.png') no-repeat center / 30%; 
+}
 
-/* --- SIDEBAR --- */
-.sidebar { width: 300px; background: rgba(0,0,0,0.95); border-right: 2px solid var(--accent); display: flex; flex-direction: column; }
-.logo-area { padding: 25px; text-align: center; }
-.sidebar-logo { width: 110px; }
+/* AUTHENTIFICATION */
+#login-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: #000; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 9999; 
+}
+.auth-box { 
+    background: var(--card-bg); 
+    padding: 40px; 
+    border: 2px solid var(--accent); 
+    border-radius: 15px; 
+    text-align: center; 
+    width: 350px; 
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+}
+.auth-logo { width: 100px; margin-bottom: 20px; }
+input, textarea { 
+    width: 100%; padding: 12px; margin: 10px 0; 
+    background: rgba(0,0,0,0.5); border: 1px solid var(--accent); 
+    color: white; border-radius: 5px; 
+}
 
-/* --- BOUTONS --- */
-.status-buttons { padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
-.status-btn { padding: 12px; text-align: center; font-weight: bold; border-radius: 5px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; }
+/* APP STRUCTURE */
+#mdt-app { display: flex; width: 100%; height: 100%; }
+.sidebar { 
+    width: 280px; background: rgba(0,0,0,0.95); 
+    border-right: 2px solid var(--accent); 
+    display: flex; flex-direction: column; 
+}
+
+/* BOUTONS ET NAVIGATION */
+.status-buttons { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.status-btn { 
+    padding: 12px; text-align: center; font-weight: bold; border-radius: 5px; 
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.2); 
+}
 .status-btn.off { background: #333; }
-.status-btn.on { background: #2ecc71; color: black; box-shadow: 0 0 10px #2ecc71; }
-.status-btn.panic { background: var(--danger); animation: flash 0.8s infinite; border: 2px solid white; }
-@keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+.status-btn.on { background: #2ecc71; color: #000; box-shadow: 0 0 10px #2ecc71; }
+.status-btn.panic { background: var(--danger); animation: pulse 1s infinite; border: 2px solid #fff; }
 
-/* --- NAVIGATION --- */
-.nav-item { padding: 15px 25px; cursor: pointer; color: #888; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+.nav-item { 
+    padding: 15px 25px; cursor: pointer; color: #888; font-weight: bold; 
+    display: flex; align-items: center; gap: 10px; transition: 0.3s;
+}
 .nav-item.active { color: var(--accent); background: rgba(0,210,255,0.1); border-left: 5px solid var(--accent); }
 
-/* --- BADGE OFFICIER (LE BAS DE LA SIDEBAR) --- */
-.user-badge {
-    margin-top: auto;
-    background: linear-gradient(to top, rgba(0, 210, 255, 0.15), transparent);
-    padding: 20px;
-    border-top: 1px solid rgba(0, 210, 255, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 15px;
+/* USER BADGE (FIX) */
+.user-badge { 
+    margin-top: auto; padding: 20px; 
+    border-top: 1px solid rgba(0,210,255,0.3); 
+    display: flex; align-items: center; gap: 15px;
+    background: linear-gradient(to top, rgba(0,210,255,0.1), transparent);
 }
-.badge-icon i { font-size: 28px; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+.user-badge i { font-size: 24px; color: var(--accent); }
 .user-info { display: flex; flex-direction: column; }
-.grade-label { font-size: 10px; color: var(--accent); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
-.name-label { font-size: 16px; color: white; font-weight: bold; text-transform: uppercase; }
+.badge-grade { font-size: 10px; color: var(--accent); font-weight: 900; text-transform: uppercase; }
+.badge-name { font-size: 16px; font-weight: bold; text-transform: uppercase; }
 
-/* --- CONTENT AREA --- */
-.content { flex: 1; padding: 30px; overflow-y: auto; }
-.page-title { margin-bottom: 20px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px; font-size: 1.4rem; }
-
-/* --- IFRAME CODE PÉNAL --- */
-.iframe-container {
-    width: 100%;
-    height: calc(100vh - 150px); /* Prend toute la hauteur restante */
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 2px solid var(--accent);
+/* CONTENU ET IFRAME */
+.content { flex: 1; padding: 40px; overflow-y: auto; }
+.iframe-container { 
+    width: 100%; height: 75vh; 
+    background: white; border-radius: 10px; 
+    border: 2px solid var(--accent); overflow: hidden; 
 }
 .iframe-container iframe { width: 100%; height: 100%; border: none; }
 
-/* --- ELEMENTS GENERAUX --- */
-.card { background: var(--card-bg); border: 1px solid rgba(0,210,255,0.2); padding: 20px; border-radius: 8px; margin-bottom: 15px; }
-.btn-glow { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; color: black; border-radius: 5px; }
+.page-title { margin-bottom: 25px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px; }
+.btn-glow { 
+    width: 100%; padding: 12px; background: var(--accent); 
+    border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 5px; 
+}
 .grid-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--card-bg); border: 1px solid rgba(0,210,255,0.2); padding: 20px; border-radius: 8px; }
