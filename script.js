@@ -17,6 +17,8 @@ const crimeData = [
     { n: "Outrage", a: 750, j: 5 },
     { n: "Délit de fuite", a: 2500, j: 15 },
     { n: "Refus d'obtempérer", a: 3500, j: 15 },
+    { n: "Corruption", a: 5000, j: 20 },
+    { n: "Menace sur agent", a: 1500, j: 10 },
     { n: "Braquage Supérette", a: 5000, j: 20 },
     { n: "Braquage Banque", a: 15000, j: 45 },
     { n: "Meurtre", a: 15000, j: 60 },
@@ -24,6 +26,23 @@ const crimeData = [
 ];
 
 let selectedCrimes = [];
+
+// GESTION CONNEXION & INSCRIPTION
+window.toggleRegister = (show) => {
+    document.getElementById('auth-fields').style.display = show ? 'none' : 'block';
+    document.getElementById('register-fields').style.display = show ? 'block' : 'none';
+};
+
+window.handleRegister = async () => {
+    const p = document.getElementById('reg-prenom').value;
+    const n = document.getElementById('reg-nom').value;
+    const m = document.getElementById('reg-mat').value;
+    const ps = document.getElementById('reg-pass').value;
+    if(p && n && m && ps) {
+        await addDoc(collection(db, "users"), { prenom: p, nom: n, matricule: m, mdp: ps, en_service: false, panic: false });
+        alert("Compte créé !"); toggleRegister(false);
+    }
+};
 
 window.checkLogin = async () => {
     const mat = document.getElementById('officer-id').value;
@@ -33,33 +52,24 @@ window.checkLogin = async () => {
     if (!snap.empty) {
         currentUser = snap.docs[0].data(); currentUser.id = snap.docs[0].id;
         document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('mdt-app').style.display = 'block';
-        document.getElementById('display-name').innerText = currentUser.nom;
+        document.getElementById('mdt-app').style.display = 'flex';
+        document.getElementById('display-name').innerText = `OFFICIER : ${currentUser.nom}`;
         initRealtime();
-    }
+        initCalc();
+    } else { alert("Identifiants incorrects."); }
 };
 
+// PANIC BUTTON
 window.triggerPanic = async () => {
     await updateDoc(doc(db, "users", currentUser.id), { panic: !currentUser.panic });
     currentUser.panic = !currentUser.panic;
 };
 
-function initRealtime() {
-    const menu = document.getElementById('crime-menu');
-    menu.innerHTML = "";
+// CALCULATEUR
+function initCalc() {
+    const menu = document.getElementById('crime-menu'); menu.innerHTML = "";
     crimeData.forEach((c, i) => {
         menu.innerHTML += `<div class="crime-item" id="crime-${i}" onclick="toggleCrime(${i})">${c.n}</div>`;
-    });
-
-    onSnapshot(collection(db, "users"), (snap) => {
-        const units = document.getElementById('list-units');
-        const pZone = document.getElementById('panic-zone');
-        units.innerHTML = ""; pZone.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            if(u.en_service) units.innerHTML += `<p>● [${u.matricule}] ${u.nom}</p>`;
-            if(u.panic) pZone.innerHTML += `<div style="background:red; color:white; padding:20px; font-weight:bold; margin-bottom:20px; text-align:center; border:2px solid white;">🚨 APPEL D'URGENCE : ${u.nom} 🚨</div>`;
-        });
     });
 }
 
@@ -85,6 +95,21 @@ window.resetCalc = () => {
     document.getElementById('jail-total').innerText = "CELLULE : 0 MIN";
 };
 
+// REALTIME DASHBOARD
+function initRealtime() {
+    onSnapshot(collection(db, "users"), (snap) => {
+        const units = document.getElementById('list-units');
+        const pZone = document.getElementById('panic-zone');
+        units.innerHTML = ""; pZone.innerHTML = "";
+        snap.forEach(d => {
+            const u = d.data();
+            units.innerHTML += `<p style="margin:5px 0;">● [${u.matricule}] ${u.nom}</p>`;
+            if(u.panic) pZone.innerHTML += `<div style="background:red; color:white; padding:15px; font-weight:bold; margin-bottom:15px; border:2px solid white; text-align:center;">🚨 ALERTE PANIC : ${u.nom} EN DANGER 🚨</div>`;
+        });
+    });
+}
+
+// NAVIGATION
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
