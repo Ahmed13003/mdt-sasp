@@ -3,19 +3,14 @@
     --card: rgba(2, 15, 28, 0.95); 
     --border: rgba(0, 210, 255, 0.3); 
     --danger: #ff4d4d; 
-    --panic: #ff0000; 
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body { 
     font-family: 'Segoe UI', sans-serif; 
-    background: #010a14; 
-    color: white; 
-    display: flex; 
-    width: 100vw;
-    height: 100vh; 
-    overflow: hidden; 
+    background: #010a14; color: white; 
+    display: flex; width: 100vw; height: 100vh; overflow: hidden; 
 }
 
 .wallpaper { 
@@ -27,178 +22,37 @@ body {
 #mdt-app { display: none; width: 100%; height: 100%; }
 
 /* SIDEBAR */
-.sidebar { 
-    width: 350px; 
-    background: rgba(0,0,0,0.95); 
-    border-right: 3px solid var(--accent); 
-    display: flex; 
-    flex-direction: column; 
-}
-
+.sidebar { width: 350px; background: rgba(0,0,0,0.95); border-right: 3px solid var(--accent); display: flex; flex-direction: column; }
 .logo-area { padding: 30px; text-align: center; border-bottom: 1px solid var(--border); }
 .sidebar-logo { width: 100px; }
 
-/* BOUTON SERVICE GÉANT */
-.service-status {
-    padding: 30px !important;
-    margin: 15px 20px;
-    text-align: center;
-    font-weight: 900;
-    font-size: 1.5rem !important;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #333;
-    color: white;
-    text-transform: uppercase;
-    transition: all 0.3s;
-    border: 4px solid rgba(255,255,255,0.1);
-}
+/* BOUTONS GÉANTS */
+.service-status { padding: 25px !important; margin: 10px 20px; text-align: center; font-weight: 900; font-size: 1.3rem; border-radius: 8px; cursor: pointer; background: #333; transition: 0.3s; border: 2px solid rgba(255,255,255,0.1); }
+.service-status.active { background: #00ff00; color: black; box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); }
 
-.service-status.active {
-    background: #00ff00 !important;
-    color: black !important;
-    box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
-    border: 4px solid white;
-}
-
-/* PANIC BUTTON */
-#panic-btn { 
-    background: var(--panic); color: white; padding: 15px; margin: 5px 20px; 
-    text-align: center; font-weight: bold; cursor: pointer; border-radius: 8px; 
-    border: 2px solid white; animation: pulse-red 1s infinite;
-}
-
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
-}
-
-.panic-banner {
-    background: red; color: white; padding: 20px; font-size: 1.5rem;
-    font-weight: bold; text-align: center; margin-bottom: 20px; border-radius: 10px;
-    animation: blink 0.5s infinite;
-}
-
-@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+#panic-btn { background: #ff0000; color: white; padding: 15px; margin: 5px 20px; text-align: center; font-weight: bold; cursor: pointer; border-radius: 8px; border: 2px solid white; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
 
 /* NAVIGATION */
-.nav-item { padding: 18px 25px; cursor: pointer; color: #888; display: flex; align-items: center; gap: 15px; transition: 0.3s; font-weight: bold; }
-.nav-item:hover, .nav-item.active { color: var(--accent); background: rgba(0,210,255,0.1); }
-.nav-item.active { border-left: 5px solid var(--accent); }
+.nav-item { padding: 15px 25px; cursor: pointer; color: #888; display: flex; align-items: center; gap: 15px; font-weight: bold; }
+.nav-item.active { color: var(--accent); background: rgba(0,210,255,0.1); border-left: 5px solid var(--accent); }
 
-/* CONTENU */
+/* CONTENU & CARTE */
 .content { flex: 1; padding: 40px; overflow-y: auto; }
-h1 { font-size: 2.5rem; margin-bottom: 30px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
-
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 25px; }
-.card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; }
-
-/* CARTE TACTIQUE - NOUVEAU LIEN FIABLE */
-.map-wrapper {
-    position: relative;
-    width: 100%;
-    height: 78vh;
-    background-color: #0b1d2e;
-    /* Utilisation d'un lien plus stable pour la carte */
-    background-image: url('https://media.rockstargames.com/rockstargames/img/global/news/upload/actual_1364406194.jpg'); 
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain; /* 'contain' pour éviter que la carte soit coupée */
-    border: 3px solid var(--accent);
-    border-radius: 10px;
-    cursor: crosshair;
-    overflow: hidden;
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+.map-wrapper { 
+    position: relative; width: 100%; height: 75vh; 
+    background: #111 url('https://media.rockstargames.com/rockstargames/img/global/news/upload/actual_1364406194.jpg') no-repeat center / contain; 
+    border: 3px solid var(--accent); border-radius: 10px; cursor: crosshair; overflow: hidden;
 }
+.map-marker { position: absolute; width: 18px; height: 18px; background: red; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; box-shadow: 0 0 10px red; }
+.marker-label { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); background: black; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; white-space: nowrap; border: 1px solid var(--accent); pointer-events: none; }
 
-/* MARQUEURS */
-.map-marker {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: #ff0000;
-    border: 2px solid white;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
-}
-
-.marker-label {
-    position: absolute;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    color: #00d2ff;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    white-space: nowrap;
-    border: 1px solid var(--accent);
-    pointer-events: none;
-}
+/* PANIC BANNER */
+.panic-banner { background: red; color: white; padding: 20px; font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 20px; border-radius: 10px; animation: blink 0.5s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
 /* AUTH */
 #login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.auth-box { background: var(--card); border: 2px solid var(--accent); padding: 50px; width: 450px; text-align: center; border-radius: 15px; }
-input, textarea { background: rgba(0,0,0,0.6); border: 1px solid var(--accent); color: white; padding: 15px; width: 100%; margin-bottom: 10px; border-radius: 5px; }
-button { background: var(--accent); color: black; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; width: 100%; }
-iframe { width: 100%; height: 75vh; border: none; }
-
-/* CARTE TACTIQUE HD */
-.map-wrapper {
-    position: relative;
-    width: 100%;
-    height: 78vh;
-    background-color: #0b1d2e;
-    /* Utilisation d'une version HD Satellite pour le RP */
-    background-image: url('https://www.gta-5-map.com/tiles/7/0/0.png'), url('https://i.imgur.com/83pZ6o9.jpg'); 
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    border: 3px solid var(--accent);
-    border-radius: 10px;
-    cursor: crosshair;
-    overflow: hidden;
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-}
-
-.map-marker {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: #ff0000;
-    border: 2px solid white;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
-    transition: transform 0.2s;
-}
-
-.map-marker:hover {
-    transform: translate(-50%, -50%) scale(1.2);
-    background: #ffea00; /* Jaune au survol pour mieux voir */
-}
-
-.marker-label {
-    position: absolute;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    color: #fff;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    white-space: nowrap;
-    border: 1px solid var(--accent);
-    pointer-events: none;
-    text-shadow: 1px 1px 2px black;
-}
+.auth-box { background: var(--card); border: 2px solid var(--accent); padding: 40px; width: 400px; text-align: center; border-radius: 15px; }
+input, textarea { background: rgba(0,0,0,0.6); border: 1px solid var(--accent); color: white; padding: 12px; width: 100%; margin-bottom: 10px; border-radius: 5px; }
+button { background: var(--accent); color: black; border: none; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; }
