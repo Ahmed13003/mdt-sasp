@@ -11,7 +11,7 @@
 
     <div id="login-overlay">
         <div class="auth-box">
-            <img src="https://i.imgur.com/wasey9r.png" class="auth-logo">
+            <img src="https://i.imgur.com/wasey9r.png" width="100">
             <div id="auth-fields">
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
@@ -22,6 +22,7 @@
                 <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
                 <input type="text" id="reg-grad" placeholder="GRADE">
+                <input type="text" id="reg-tel" placeholder="TÉLÉPHONE">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
                 <button class="btn-glow" onclick="handleRegister()">ENREGISTRER</button>
@@ -32,15 +33,11 @@
 
     <div id="mdt-app" style="display:none;">
         <div class="sidebar">
-            <div class="logo-area">
-                <img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo">
-            </div>
-            
+            <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
             <div class="status-buttons">
                 <div id="service-btn" class="status-btn off" onclick="toggleService()">HORS SERVICE</div>
                 <div id="panic-btn" class="status-btn panic" onclick="triggerPanic()">PANIC BUTTON</div>
             </div>
-            
             <nav>
                 <div class="nav-item active" data-page="page-dispatch"><i class="fas fa-desktop"></i> DISPATCH</div>
                 <div class="nav-item" data-page="page-penal"><i class="fas fa-gavel"></i> CODE PÉNAL</div>
@@ -48,7 +45,6 @@
                 <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL</div>
                 <div class="nav-item" data-page="page-effectifs"><i class="fas fa-clipboard-list"></i> EFFECTIFS</div>
             </nav>
-
             <div class="user-badge">
                 <i class="fas fa-user-shield"></i>
                 <div class="user-info">
@@ -63,7 +59,7 @@
 
             <section id="page-dispatch" class="mdt-page">
                 <h1 class="page-title">Unités en service</h1>
-                <div id="list-units" class="grid-list"></div>
+                <div id="list-units"></div>
             </section>
 
             <section id="page-penal" class="mdt-page" style="display:none;">
@@ -74,9 +70,9 @@
             </section>
 
             <section id="page-bolo" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Avis de Recherche (BOLO)</h1>
+                <h1 class="page-title">BOLO</h1>
                 <div class="card">
-                    <input type="text" id="bolo-sujet" placeholder="Sujet recherché">
+                    <input type="text" id="bolo-sujet" placeholder="Cible recherchée">
                     <textarea id="bolo-raison" placeholder="Raison..."></textarea>
                     <button class="btn-glow" onclick="addBolo()">LANCER L'AVIS</button>
                 </div>
@@ -88,18 +84,17 @@
                 <div class="card">
                     <input type="text" id="civ-prenom" placeholder="Prénom">
                     <input type="text" id="civ-nom" placeholder="Nom">
-                    <button class="btn-glow" onclick="addCivil()">CRÉER LA FICHE</button>
+                    <button class="btn-glow" onclick="addCivil()">CRÉER FICHE</button>
                 </div>
                 <div id="list-citoyens" class="grid-list"></div>
             </section>
 
             <section id="page-effectifs" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Annuaire des Effectifs</h1>
+                <h1 class="page-title">Effectifs</h1>
                 <div id="list-effectifs" class="grid-list"></div>
             </section>
         </main>
     </div>
-
     <script type="module" src="script.js"></script>
 </body>
 </html>
