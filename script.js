@@ -14,7 +14,6 @@ const db = getFirestore(app);
 let currentUser = null;
 
 // --- AUTHENTIFICATION ---
-
 window.toggleRegister = (show) => {
     document.getElementById('auth-fields').style.display = show ? 'none' : 'block';
     document.getElementById('register-fields').style.display = show ? 'block' : 'none';
@@ -24,18 +23,16 @@ window.handleRegister = async () => {
     const p = document.getElementById('reg-prenom').value;
     const n = document.getElementById('reg-nom').value;
     const g = document.getElementById('reg-grad').value;
+    const t = document.getElementById('reg-tel').value;
     const m = document.getElementById('reg-mat').value;
     const ps = document.getElementById('reg-pass').value;
-    
+
     if(p && n && g && m && ps) {
         await addDoc(collection(db, "users"), { 
-            prenom: p, nom: n, grade: g, matricule: m, mdp: ps, 
-            en_service: false, panic: false 
+            prenom: p, nom: n, grade: g, tel: t, matricule: m, mdp: ps, 
+            en_service: false, panic: false, patrouille: "" 
         });
-        alert("Agent enregistré ! Connectez-vous.");
-        toggleRegister(false);
-    } else {
-        alert("Remplissez tous les champs.");
+        alert("Enregistré !"); toggleRegister(false);
     }
 };
 
@@ -44,117 +41,93 @@ window.checkLogin = async () => {
     const pass = document.getElementById('access-code').value;
     const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
     const snap = await getDocs(q);
-    
     if (!snap.empty) {
-        const userDoc = snap.docs[0];
-        currentUser = userDoc.data();
-        currentUser.id = userDoc.id;
-
+        currentUser = snap.docs[0].data(); currentUser.id = snap.docs[0].id;
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('mdt-app').style.display = 'flex';
-        
-        // Mise à jour badge
         document.getElementById('display-name').innerText = currentUser.nom;
         document.getElementById('display-grade').innerText = currentUser.grade;
-
         initRealtime();
-    } else {
-        alert("Identifiants incorrects.");
-    }
+    } else { alert("Identifiants incorrects."); }
 };
 
-// --- ACTIONS ---
-
+// --- ACTIONS DISPATCH ---
 window.toggleService = async () => {
-    const btn = document.getElementById('service-btn');
-    const status = btn.innerText === "HORS SERVICE";
-    await updateDoc(doc(db, "users", currentUser.id), { en_service: status });
-    btn.innerText = status ? "EN SERVICE" : "HORS SERVICE";
-    btn.className = status ? "status-btn on" : "status-btn off";
+    const isNow = document.getElementById('service-btn').innerText === "HORS SERVICE";
+    await updateDoc(doc(db, "users", currentUser.id), { en_service: isNow });
+    document.getElementById('service-btn').innerText = isNow ? "EN SERVICE" : "HORS SERVICE";
+    document.getElementById('service-btn').className = isNow ? "status-btn on" : "status-btn off";
 };
 
 window.triggerPanic = async () => {
-    // On récupère la donnée actuelle pour inverser
-    const newState = !currentUser.panic;
-    await updateDoc(doc(db, "users", currentUser.id), { panic: newState });
-    currentUser.panic = newState;
+    await updateDoc(doc(db, "users", currentUser.id), { panic: !currentUser.panic });
 };
 
-// --- SYNCHRONISATION TEMPS RÉEL (CORRIGÉ) ---
+window.updatePatrouille = async (id, val) => {
+    await updateDoc(doc(db, "users", id), { patrouille: val });
+};
 
+// --- AJOUTS (BOLO / CIVIL) ---
+window.addBolo = async () => {
+    const s = document.getElementById('bolo-sujet').value;
+    const r = document.getElementById('bolo-raison').value;
+    if(s && r) await addDoc(collection(db, "bolos"), { sujet: s, raison: r, auteur: currentUser.nom });
+};
+
+window.addCivil = async () => {
+    const p = document.getElementById('civ-prenom').value;
+    const n = document.getElementById('civ-nom').value;
+    if(p && n) await addDoc(collection(db, "civils"), { prenom: p, nom: n, casier: [] });
+};
+
+window.addCrime = async (id) => {
+    const crime = prompt("Infraction :");
+    if(crime) {
+        const snap = await getDocs(query(collection(db, "civils"), where("__name__", "==", id)));
+        let list = snap.docs[0].data().casier || [];
+        list.push(crime);
+        await updateDoc(doc(db, "civils", id), { casier: list });
+    }
+};
+
+// --- TEMPS RÉEL ---
 function initRealtime() {
-    // Surveillance des agents (Dispatch + Effectifs + Panic)
+    // Agents (Dispatch + Panic + Effectifs)
     onSnapshot(collection(db, "users"), (snap) => {
         const listUnits = document.getElementById('list-units');
         const listEffectifs = document.getElementById('list-effectifs');
         const panicZone = document.getElementById('panic-zone');
+        listUnits.innerHTML = ""; listEffectifs.innerHTML = ""; panicZone.innerHTML = "";
         
-        listUnits.innerHTML = "";
-        listEffectifs.innerHTML = "";
-        panicZone.innerHTML = "";
-
         snap.forEach(d => {
             const u = d.data();
-
-            // 1. Mise à jour de l'onglet Dispatch (Agents en service)
-            if (u.en_service) {
-                listUnits.innerHTML += `
-                    <div class="card" style="border-left: 4px solid #2ecc71; display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 5px;">
-                        <span>[${u.matricule}] ${u.grade} ${u.nom}</span>
-                        <span style="color: #2ecc71; font-weight: bold;">● ACTIF</span>
-                    </div>`;
-            }
-
-            // 2. Mise à jour de l'onglet Effectifs (Tous les agents)
-            listEffectifs.innerHTML += `
-                <div class="card">
-                    <b style="color: var(--accent); font-size: 0.8rem;">${u.grade}</b><br>
-                    <span style="font-size: 1.1rem; font-weight: bold;">${u.prenom} ${u.nom}</span><br>
-                    <small>Matricule : ${u.matricule}</small>
+            if(u.en_service) {
+                listUnits.innerHTML += `<div class="card">
+                    <b>[${u.matricule}] ${u.grade} ${u.nom}</b>
+                    <input type="text" value="${u.patrouille || ''}" placeholder="Patrouille" onchange="updatePatrouille('${d.id}', this.value)">
                 </div>`;
-
-            // 3. Gestion de l'annonce Panic
-            if (u.panic) {
-                panicZone.innerHTML += `
-                    <div style="background: #ff0000; color: white; padding: 20px; text-align: center; font-weight: bold; border: 4px solid white; margin-bottom: 20px; animation: pulse 0.6s infinite;">
-                        🚨 ATTENTION : PANIC BUTTON ACTIVÉ PAR [${u.matricule}] ${u.nom} 🚨
-                    </div>`;
             }
+            listEffectifs.innerHTML += `<div class="card">${u.grade} ${u.nom} (${u.matricule})</div>`;
+            if(u.panic) panicZone.innerHTML += `<div class="card" style="border:2px solid red; color:red;">🚨 PANIC: ${u.nom}</div>`;
         });
     });
 
-    // Surveillance des BOLO
+    // BOLO & Civils
     onSnapshot(collection(db, "bolos"), (snap) => {
-        const list = document.getElementById('list-bolo');
-        list.innerHTML = "";
-        snap.forEach(d => {
-            const b = d.data();
-            list.innerHTML += `
-                <div class="card" style="border-left: 5px solid red;">
-                    <h3 style="color: red;">AVIS DE RECHERCHE</h3>
-                    <p><b>CIBLE :</b> ${b.sujet}</p>
-                    <p>${b.raison}</p>
-                </div>`;
-        });
+        const list = document.getElementById('list-bolo'); list.innerHTML = "";
+        snap.forEach(d => { list.innerHTML += `<div class="card">${d.data().sujet} : ${d.data().raison}</div>`; });
     });
 
-    // Surveillance des Civils
     onSnapshot(collection(db, "civils"), (snap) => {
-        const list = document.getElementById('list-citoyens');
-        list.innerHTML = "";
+        const list = document.getElementById('list-citoyens'); list.innerHTML = "";
         snap.forEach(d => {
             const c = d.data();
-            list.innerHTML += `
-                <div class="card">
-                    <b>${c.prenom} ${c.nom}</b>
-                    <button onclick="addCrime('${d.id}')" style="display:block; margin-top:10px; font-size:10px;">+ Ajouter Crime</button>
-                </div>`;
+            list.innerHTML += `<div class="card">${c.prenom} ${c.nom} <button onclick="addCrime('${d.id}')">+ Crime</button></div>`;
         });
     });
 }
 
-// --- NAVIGATION ---
-
+// NAVIGATION
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -163,30 +136,3 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.getElementById(item.getAttribute('data-page')).style.display = 'block';
     });
 });
-// --- AJOUTE CETTE FONCTION DANS TON SCRIPT.JS ---
-window.updatePatrouille = async (userId, val) => {
-    const docRef = doc(db, "users", userId);
-    await updateDoc(docRef, { patrouille: val.toUpperCase() });
-};
-
-// --- MODIFIE LA PARTIE "initRealtime" POUR LE DISPATCH ---
-// Dans la boucle snap.forEach(d => { ... }) de users :
-
-if (u.en_service) {
-    listUnits.innerHTML += `
-        <div class="card" style="border-left: 4px solid #2ecc71; display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(0,0,0,0.3);">
-            <div style="display: flex; flex-direction: column;">
-                <span style="font-weight: bold;">[${u.matricule}] ${u.grade} ${u.nom}</span>
-                <small style="color: #aaa;">Statut: En service</small>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label style="font-size: 10px; color: var(--accent);">PATROUILLE :</label>
-                <input type="text" 
-                    value="${u.patrouille || ''}" 
-                    placeholder="Ex: L-10" 
-                    onchange="updatePatrouille('${d.id}', this.value)"
-                    style="width: 80px; padding: 5px; margin: 0; background: #000; border: 1px solid var(--accent); color: white; text-align: center; font-weight: bold;"
-                >
-            </div>
-        </div>`;
-}
