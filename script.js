@@ -13,33 +13,32 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentUser = null;
 
-// --- AUTHENTIFICATION ---
-window.toggleRegister = (show) => {
-    document.getElementById('auth-fields').style.display = show ? 'none' : 'block';
-    document.getElementById('register-fields').style.display = show ? 'block' : 'none';
+// --- AUTH ---
+window.toggleRegister = (s) => {
+    document.getElementById('auth-fields').style.display = s ? 'none' : 'block';
+    document.getElementById('register-fields').style.display = s ? 'block' : 'none';
 };
 
 window.handleRegister = async () => {
-    const p = document.getElementById('reg-prenom').value;
-    const n = document.getElementById('reg-nom').value;
-    const g = document.getElementById('reg-grad').value;
-    const t = document.getElementById('reg-tel').value;
-    const m = document.getElementById('reg-mat').value;
-    const ps = document.getElementById('reg-pass').value;
-
-    if(p && n && g && m && ps) {
-        await addDoc(collection(db, "users"), { 
-            prenom: p, nom: n, grade: g, tel: t, matricule: m, mdp: ps, 
-            en_service: false, panic: false, patrouille: "" 
-        });
-        alert("Enregistré !"); toggleRegister(false);
+    const data = {
+        prenom: document.getElementById('reg-prenom').value,
+        nom: document.getElementById('reg-nom').value,
+        grade: document.getElementById('reg-grad').value,
+        tel: document.getElementById('reg-tel').value,
+        matricule: document.getElementById('reg-mat').value,
+        mdp: document.getElementById('reg-pass').value,
+        en_service: false, panic: false, patrouille: ""
+    };
+    if(data.nom && data.matricule && data.mdp) {
+        await addDoc(collection(db, "users"), data);
+        alert("Agent enregistré !"); toggleRegister(false);
     }
 };
 
 window.checkLogin = async () => {
     const mat = document.getElementById('officer-id').value;
-    const pass = document.getElementById('access-code').value;
-    const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", pass));
+    const ps = document.getElementById('access-code').value;
+    const q = query(collection(db, "users"), where("matricule", "==", mat), where("mdp", "==", ps));
     const snap = await getDocs(q);
     if (!snap.empty) {
         currentUser = snap.docs[0].data(); currentUser.id = snap.docs[0].id;
@@ -48,26 +47,28 @@ window.checkLogin = async () => {
         document.getElementById('display-name').innerText = currentUser.nom;
         document.getElementById('display-grade').innerText = currentUser.grade;
         initRealtime();
-    } else { alert("Identifiants incorrects."); }
+    } else alert("Erreur d'identification.");
 };
 
-// --- ACTIONS DISPATCH ---
+// --- ÉTATS ---
 window.toggleService = async () => {
-    const isNow = document.getElementById('service-btn').innerText === "HORS SERVICE";
-    await updateDoc(doc(db, "users", currentUser.id), { en_service: isNow });
-    document.getElementById('service-btn').innerText = isNow ? "EN SERVICE" : "HORS SERVICE";
-    document.getElementById('service-btn').className = isNow ? "status-btn on" : "status-btn off";
+    const isS = document.getElementById('service-btn').innerText === "HORS SERVICE";
+    await updateDoc(doc(db, "users", currentUser.id), { en_service: isS });
+    document.getElementById('service-btn').innerText = isS ? "EN SERVICE" : "HORS SERVICE";
+    document.getElementById('service-btn').className = isS ? "status-btn on" : "status-btn off";
 };
 
 window.triggerPanic = async () => {
-    await updateDoc(doc(db, "users", currentUser.id), { panic: !currentUser.panic });
+    const p = !currentUser.panic;
+    await updateDoc(doc(db, "users", currentUser.id), { panic: p });
+    currentUser.panic = p;
 };
 
 window.updatePatrouille = async (id, val) => {
     await updateDoc(doc(db, "users", id), { patrouille: val });
 };
 
-// --- AJOUTS (BOLO / CIVIL) ---
+// --- AJOUTS ---
 window.addBolo = async () => {
     const s = document.getElementById('bolo-sujet').value;
     const r = document.getElementById('bolo-raison').value;
@@ -81,7 +82,7 @@ window.addCivil = async () => {
 };
 
 window.addCrime = async (id) => {
-    const crime = prompt("Infraction :");
+    const crime = prompt("Infraction à ajouter :");
     if(crime) {
         const snap = await getDocs(query(collection(db, "civils"), where("__name__", "==", id)));
         let list = snap.docs[0].data().casier || [];
@@ -90,44 +91,43 @@ window.addCrime = async (id) => {
     }
 };
 
-// --- TEMPS RÉEL ---
+// --- REALTIME ---
 function initRealtime() {
-    // Agents (Dispatch + Panic + Effectifs)
     onSnapshot(collection(db, "users"), (snap) => {
-        const listUnits = document.getElementById('list-units');
-        const listEffectifs = document.getElementById('list-effectifs');
-        const panicZone = document.getElementById('panic-zone');
-        listUnits.innerHTML = ""; listEffectifs.innerHTML = ""; panicZone.innerHTML = "";
+        const dL = document.getElementById('list-units');
+        const eL = document.getElementById('list-effectifs');
+        const pZ = document.getElementById('panic-zone');
+        dL.innerHTML = ""; eL.innerHTML = ""; pZ.innerHTML = "";
         
         snap.forEach(d => {
             const u = d.data();
             if(u.en_service) {
-                listUnits.innerHTML += `<div class="card">
-                    <b>[${u.matricule}] ${u.grade} ${u.nom}</b>
-                    <input type="text" value="${u.patrouille || ''}" placeholder="Patrouille" onchange="updatePatrouille('${d.id}', this.value)">
+                dL.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>[${u.matricule}] ${u.grade} ${u.nom}</span>
+                    <input type="text" value="${u.patrouille || ''}" placeholder="Patrouille" onchange="updatePatrouille('${d.id}', this.value)" style="width:100px; margin:0; font-size:12px;">
                 </div>`;
             }
-            listEffectifs.innerHTML += `<div class="card">${u.grade} ${u.nom} (${u.matricule})</div>`;
-            if(u.panic) panicZone.innerHTML += `<div class="card" style="border:2px solid red; color:red;">🚨 PANIC: ${u.nom}</div>`;
+            eL.innerHTML += `<div class="card"><b>${u.grade} ${u.nom}</b><br><small>Mat: ${u.matricule} | Tel: ${u.tel || 'N/A'}</small></div>`;
+            if(u.panic) pZ.innerHTML += `<div style="background:red; color:white; padding:15px; text-align:center; font-weight:bold; border:2px solid white; margin-bottom:20px;">🚨 PANIC: [${u.matricule}] ${u.nom} 🚨</div>`;
         });
     });
 
-    // BOLO & Civils
     onSnapshot(collection(db, "bolos"), (snap) => {
         const list = document.getElementById('list-bolo'); list.innerHTML = "";
-        snap.forEach(d => { list.innerHTML += `<div class="card">${d.data().sujet} : ${d.data().raison}</div>`; });
+        snap.forEach(d => { list.innerHTML += `<div class="card" style="border-left:5px solid red;"><b>${d.data().sujet}</b><br>${d.data().raison}</div>`; });
     });
 
     onSnapshot(collection(db, "civils"), (snap) => {
         const list = document.getElementById('list-citoyens'); list.innerHTML = "";
         snap.forEach(d => {
             const c = d.data();
-            list.innerHTML += `<div class="card">${c.prenom} ${c.nom} <button onclick="addCrime('${d.id}')">+ Crime</button></div>`;
+            let crimes = (c.casier || []).map(t => `<span style="background:red; padding:2px 5px; font-size:10px; margin:2px; border-radius:3px;">${t}</span>`).join(' ');
+            list.innerHTML += `<div class="card"><b>${c.prenom} ${c.nom}</b><br><div style="margin:10px 0;">${crimes || 'Casier Vierge'}</div><button onclick="addCrime('${d.id}')" style="font-size:10px; padding:4px;">+ CRIME</button></div>`;
         });
     });
 }
 
-// NAVIGATION
+// NAV
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
