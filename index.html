@@ -16,16 +16,16 @@
                 <input type="text" id="officer-id" placeholder="MATRICULE">
                 <input type="password" id="access-code" placeholder="MOT DE PASSE">
                 <button class="btn-glow" onclick="checkLogin()">CONNEXION</button>
-                <p class="link" onclick="toggleRegister(true)">Créer un compte</p>
+                <p class="link" onclick="toggleRegister(true)">Créer un compte agent</p>
             </div>
             <div id="register-fields" style="display:none;">
                 <input type="text" id="reg-prenom" placeholder="PRÉNOM">
                 <input type="text" id="reg-nom" placeholder="NOM">
                 <input type="text" id="reg-grad" placeholder="GRADE">
-                <input type="text" id="reg-tel" placeholder="TÉLÉPHONE">
+                <input type="text" id="reg-tel" placeholder="NUMÉRO DE TÉLÉPHONE">
                 <input type="text" id="reg-mat" placeholder="MATRICULE">
                 <input type="password" id="reg-pass" placeholder="MOT DE PASSE">
-                <button class="btn-glow" onclick="handleRegister()">ENREGISTRER</button>
+                <button class="btn-glow" onclick="handleRegister()">ENREGISTRER L'AGENT</button>
                 <p class="link" onclick="toggleRegister(false)">Retour</p>
             </div>
         </div>
@@ -34,10 +34,12 @@
     <div id="mdt-app" style="display:none;">
         <div class="sidebar">
             <div class="logo-area"><img src="https://i.imgur.com/wasey9r.png" class="sidebar-logo"></div>
+            
             <div class="status-buttons">
                 <div id="service-btn" class="status-btn off" onclick="toggleService()">HORS SERVICE</div>
                 <div id="panic-btn" class="status-btn panic" onclick="triggerPanic()">PANIC BUTTON</div>
             </div>
+            
             <nav>
                 <div class="nav-item active" data-page="page-dispatch"><i class="fas fa-desktop"></i> DISPATCH</div>
                 <div class="nav-item" data-page="page-penal"><i class="fas fa-gavel"></i> CODE PÉNAL</div>
@@ -45,6 +47,7 @@
                 <div class="nav-item" data-page="page-citoyens"><i class="fas fa-users"></i> FICHIER CIVIL</div>
                 <div class="nav-item" data-page="page-effectifs"><i class="fas fa-clipboard-list"></i> EFFECTIFS</div>
             </nav>
+
             <div class="user-badge">
                 <i class="fas fa-user-shield"></i>
                 <div class="user-info">
@@ -58,39 +61,39 @@
             <div id="panic-zone"></div>
 
             <section id="page-dispatch" class="mdt-page">
-                <h1 class="page-title">Unités en service</h1>
-                <div id="list-units"></div>
+                <h1 class="page-title">Unités en Patrouille</h1>
+                <div id="list-units" class="dispatch-list"></div>
             </section>
 
             <section id="page-penal" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Code Pénal SASP</h1>
+                <h1 class="page-title">Consultation Code Pénal</h1>
                 <div class="iframe-container">
                     <iframe src="https://docs.google.com/spreadsheets/d/1y8_DfJ5J2IZmJUKPhc2HxbjzdUaMcxbdg1fYA-dF8EI/preview?gid=1895731737"></iframe>
                 </div>
             </section>
 
             <section id="page-bolo" class="mdt-page" style="display:none;">
-                <h1 class="page-title">BOLO</h1>
+                <h1 class="page-title">Avis de Recherche</h1>
                 <div class="card">
-                    <input type="text" id="bolo-sujet" placeholder="Cible recherchée">
-                    <textarea id="bolo-raison" placeholder="Raison..."></textarea>
-                    <button class="btn-glow" onclick="addBolo()">LANCER L'AVIS</button>
+                    <input type="text" id="bolo-sujet" placeholder="Individu ou Véhicule">
+                    <textarea id="bolo-raison" placeholder="Détails de la recherche..."></textarea>
+                    <button class="btn-glow" onclick="addBolo()">LANCER LE BOLO</button>
                 </div>
                 <div id="list-bolo" class="grid-list"></div>
             </section>
 
             <section id="page-citoyens" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Fichier Civil</h1>
+                <h1 class="page-title">Base de Données Civile</h1>
                 <div class="card">
                     <input type="text" id="civ-prenom" placeholder="Prénom">
                     <input type="text" id="civ-nom" placeholder="Nom">
-                    <button class="btn-glow" onclick="addCivil()">CRÉER FICHE</button>
+                    <button class="btn-glow" onclick="addCivil()">ENREGISTRER CITOYEN</button>
                 </div>
                 <div id="list-citoyens" class="grid-list"></div>
             </section>
 
             <section id="page-effectifs" class="mdt-page" style="display:none;">
-                <h1 class="page-title">Effectifs</h1>
+                <h1 class="page-title">Annuaire des Effectifs</h1>
                 <div id="list-effectifs" class="grid-list"></div>
             </section>
         </main>
